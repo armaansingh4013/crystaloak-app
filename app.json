@@ -2,27 +2,41 @@
   "expo": {
     "name": "crystaloak-app",
     "slug": "crystaloak-app",
-    "version": "1.0.0",
+    "version": "1.0.2",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/logo.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/logo.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.armaansingh4886.crystaloakapp",
+      "infoPlist": {
+        "NSContactsUsageDescription": "This app needs access to your contacts to select employee details."
+      }
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/logo.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.armaansingh4886.crystaloakapp",
+      "permissions": ["READ_CONTACTS"]
     },
     "web": {
-      "favicon": "./assets/favicon.png"
-    }
+      "favicon": "./assets/logo.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "ef7f0ffb-7f0d-484d-b929-cd802030c554"
+      }
+    },
+    "plugins": [
+      "react-native-video"
+    ]
   }
 }

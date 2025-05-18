@@ -1,4 +1,4 @@
-import API from "../api";
+import API from "../api/index";
 import {getToken,  storeUserData} from "../components/Storage"
 
 const getProfile = async () => {

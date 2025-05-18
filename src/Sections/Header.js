@@ -1,9 +1,14 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, StatusBar } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import color from "../styles/globals"
 const Header = ({ title, onBackPress, rightComponent }) => {
   return (
+    <>
+    <StatusBar
+      backgroundColor={color.primary}
+      barStyle="light-content"
+    />
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
         {/* Left */}
@@ -25,7 +30,7 @@ const Header = ({ title, onBackPress, rightComponent }) => {
           {rightComponent && rightComponent}
         </View>
       </View>
-    </SafeAreaView>
+    </SafeAreaView></>
   );
 };
 
@@ -38,8 +43,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
   },
   side: {
     width: 50,

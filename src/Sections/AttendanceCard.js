@@ -47,7 +47,7 @@ const AttendanceCard = ({item}) => {
                 <Text style={styles.time}>{item.checkOut&&formatLocalTime(item.checkOut.time)}</Text>
               </View>
               <View style={styles.details}>
-                <Text style={styles.time}>{item.siteId.name}</Text>
+                <Text style={styles.time}>{item.siteId&&item.siteId.name}</Text>
               </View>
               <View style={styles.details}>
                 <Text onPress={handleImages} style={styles.imageTitle}>{item.workImages&&item.workImages.length>0?"Images":"No \n Images"}</Text>

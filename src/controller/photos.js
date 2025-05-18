@@ -5,10 +5,10 @@ import {getToken} from "../components/Storage"
 const uploadPhotos = async (formData) => {
 
 const token = await getToken()
-console.log('====================================');
-console.log(formData);
-console.log('====================================');
 try{
+  console.log('====================================');
+  console.log(formData);
+  console.log('====================================');  
 const response = await fetch(API.uploadPhoto, {
   method: 'POST',
   headers: {
@@ -20,7 +20,6 @@ const response = await fetch(API.uploadPhoto, {
 });
 
 const data = await response.json();
-
 
 
     if (!response.ok) {
