@@ -36,7 +36,20 @@
       }
     },
     "plugins": [
-      "react-native-video"
+      "react-native-video",
+      [
+        "react-native-permissions",
+        {
+          "contacts": {
+            "ios": {
+              "usageDescription": "This app needs access to your contacts to select employee details."
+            },
+            "android": {
+              "permission": "android.permission.READ_CONTACTS"
+            }
+          }
+        }
+      ]
     ]
   }
 }

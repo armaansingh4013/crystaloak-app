@@ -10,6 +10,7 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   Platform,
+  KeyboardAvoidingView,
 } from 'react-native';
 import {AuthContext} from '../components/AuthContext';
 import loginUser from '../controller/auth';
@@ -17,7 +18,6 @@ import {storeUserData} from '../components/Storage';
 import {MaterialIcons, Entypo} from '@expo/vector-icons';
 import logo from '../assets/logo.png';
 import color from '../styles/globals';
-import Toast from 'react-native-toast-message';
 import Loader from "../Sections/Loader"
 
 const Login = () => {
@@ -26,94 +26,90 @@ const Login = () => {
   const [password, setPassword] = useState ('');
   const {login} = useContext (AuthContext);
   const [showPassword, setShowPassword] = useState (false);
-  const [loading,setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
   const handleLogin = async () => {
-    setLoading(true)
+    setLoading(true);
+    setErrorMessage(''); // Clear any previous error message
     const res = await loginUser (employeeCode, password);
     if (res.success) {
       await login (res.data.token);
       storeUserData (res.data.user);
       if (res.data.user.role ==="user") {
-        
-      navigation.replace ('TabNavigator');
+        if(res.data.user.documents){
+          navigation.replace ('TabNavigator');
+        } else {
+          navigation.replace ('DocumentUpload');
+        }
       } else {
         navigation.replace ('AdminNavigator');
       }
-      Toast.show ({
-        type: 'success', 
-        text1: 'LogIn Sucessfull ',
-        position: 'top',
-      });
     } else {
-      Toast.show ({
-        type: 'error', 
-        text1: 'Wrong Credentials',
-        position: 'top',
-      });
+      setErrorMessage('Invalid Employee code or Password');
     }
-      setLoading(false)
+    setLoading(false);
   };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={styles.container}>
-      {loading&&<Loader/>}
-        {/* Top Purple Header */}
-        <View style={styles.header}>
-          <Image source={logo} style={{width: 100, height: 100}} />
-          <Text style={styles.logoText}>
-            Crystaloak {'\n'}<Text>Construction</Text>
-          </Text>
-        </View>
-
-        {/* White Card */}
-        <View style={styles.card}>
-          <Text style={styles.loginText}>Login</Text>
-
-          <View style={styles.inputWrapper}>
-            <MaterialIcons name="email" size={20} color="#A9A9A9" />
-            <TextInput
-              placeholder="Employee Id"
-              value={employeeCode}
-              onChangeText={setEmployeeCode}
-              style={styles.input}
-            />
+    <KeyboardAvoidingView 
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{flex: 1}}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.container}>
+          {loading && <Loader/>}
+          {/* Top Purple Header */}
+          <View style={styles.header}>
+            <Image source={logo} style={{width: 100, height: 100}} />
+            <Text style={styles.logoText}>
+              Crystaloak {'\n'}<Text>Construction</Text>
+            </Text>
           </View>
 
-          {/* <View style={styles.inputWrapper}>
-            <Entypo name="lock" size={20} color="#A9A9A9" />
-            <TextInput
-              placeholder="Password"
-              secureTextEntry
-              value={password}
-              onChangeText={setPassword}
-              style={styles.input}
-            />
-          </View> */}
-          <View style={styles.inputWrapper}>
-            <Entypo name="lock" size={20} color="#A9A9A9" />
-            <TextInput
-              placeholder="Password"
-              secureTextEntry={!showPassword}
-              value={password}
-              onChangeText={setPassword}
-              style={styles.input}
-            />
-            <TouchableOpacity onPress={() => setShowPassword (!showPassword)}>
-              <Entypo
-                name={showPassword ? 'eye-with-line' : 'eye'}
-                size={20}
-                color="#A9A9A9"
+          {/* White Card */}
+          <View style={styles.card}>
+            <Text style={styles.loginText}>Login</Text>
+
+            <View style={styles.inputWrapper}>
+              <MaterialIcons name="email" size={20} color="#A9A9A9" />
+              <TextInput
+                placeholder="Employee Id"
+                value={employeeCode}
+                onChangeText={setEmployeeCode}
+                style={styles.input}
               />
+            </View>
+
+            <View style={styles.inputWrapper}>
+              <Entypo name="lock" size={20} color="#A9A9A9" />
+              <TextInput
+                placeholder="Password"
+                secureTextEntry={!showPassword}
+                value={password}
+                onChangeText={setPassword}
+                style={styles.input}
+              />
+              <TouchableOpacity onPress={() => setShowPassword (!showPassword)}>
+                <Entypo
+                  name={showPassword ? 'eye-with-line' : 'eye'}
+                  size={20}
+                  color="#A9A9A9"
+                />
+              </TouchableOpacity>
+            </View>
+
+            {errorMessage ? (
+              <Text style={styles.errorText}>{errorMessage}</Text>
+            ) : null}
+
+            <TouchableOpacity style={styles.loginBtn} onPress={handleLogin}>
+              <Entypo name="arrow-long-right" size={24} color="white" />
             </TouchableOpacity>
           </View>
-
-          <TouchableOpacity style={styles.loginBtn} onPress={handleLogin}>
-            <Entypo name="arrow-long-right" size={24} color="white" />
-          </TouchableOpacity>
         </View>
-      </View>
-    </TouchableWithoutFeedback>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -182,5 +178,11 @@ const styles = StyleSheet.create ({
     shadowOffset: {width: 0, height: 4},
     shadowRadius: 10,
     elevation: 5,
+  },
+  errorText: {
+    color: 'red',
+    textAlign: 'center',
+    marginBottom: 15,
+    fontSize: 14,
   },
 });

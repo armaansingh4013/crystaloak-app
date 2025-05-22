@@ -4,7 +4,6 @@ import { getToken } from "../../components/Storage";
 export const getEnabledEmployees = async () => {
   try {
     const token = await getToken();
-    console.log('Fetching enabled employees...');
     
     const response = await fetch(API.enabledEmployees, {
       method: "GET",
@@ -14,9 +13,7 @@ export const getEnabledEmployees = async () => {
       },
     });
 
-    console.log('Response status:', response.status);
     const data = await response.json();
-    console.log('Response data:', data);
 
     if (!response.ok) {
       console.error('API Error:', data);
@@ -36,9 +33,6 @@ export const getEnabledEmployees = async () => {
 
 export const getReport = async (data) => {
   try {
-    console.log('====================================');
-    console.log(data);
-    console.log('====================================');
     const token = await getToken();
     const response = await fetch(API.report+`?employeeId=`+data.employeeId+`&startDate=`+data.startDate+`&endDate=`+data.endDate, {
       method: "GET",

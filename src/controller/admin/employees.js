@@ -30,9 +30,6 @@ export const getAllEmployees = async () => {
 
 export const updateEmployee = async (data) => {
     try {
-      console.log('====================================');
-      console.log(data);
-      console.log('====================================');
       const token = await getToken()
       const response = await fetch(API.employees+"/"+data.id, {
         method: 'PUT',

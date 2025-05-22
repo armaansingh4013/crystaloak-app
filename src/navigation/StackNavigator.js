@@ -25,6 +25,9 @@ import Estimations from '../screens/Estimations';
 import EstimationDetails from '../screens/EstimationDetails';
 import DocumentUpload from '../screens/DocumentUpload';
 import PaySlipSelection from '../screens/PaySlipSelection';
+import PaySlipDetails from '../screens/PaySlipDetails';
+import PaySlipView from '../screens/PaySlipView';
+import getProfile from '../controller/profile';
 
 const Stack = createStackNavigator();
 
@@ -36,18 +39,13 @@ const StackNavigator = () => {
     const checkAuth = async () => {
       try {
         const token = await getToken();
-        const userData = await getUserData();
-        console.log('====================================');
-        console.log(userData);
-        console.log('====================================');
+        const userData = await getProfile();
         if (token) {
-          if (userData?.role === 'admin') {
+          if (userData?.data.role === 'admin') {
             setInitialRoute('AdminNavigator');
-          } else if (userData?.documents?.documentsUploaded === false) {
+          } else if (! userData.data.documents) {
             setInitialRoute('DocumentUpload');
-          } else if (userData?.documents?.documentsVerified === false) {
-            setInitialRoute('DocumentUpload');
-          } else {
+          }  else {
             setInitialRoute('TabNavigator');
           }
         } else {
@@ -94,6 +92,8 @@ const StackNavigator = () => {
         <Stack.Screen name="EstimationDetails" component={EstimationDetails} />
         <Stack.Screen name="DocumentUpload" component={DocumentUpload} />
         <Stack.Screen name="PaySlipSelection" component={PaySlipSelection}/>
+        <Stack.Screen name="PaySlipDetails" component={PaySlipDetails}/>
+        <Stack.Screen name="PaySlipView" component={PaySlipView}/>
       </Stack.Navigator>
     </NavigationContainer>
   );

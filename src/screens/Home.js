@@ -36,10 +36,10 @@ import mime from 'mime';
 import { base_url } from '../api';
 import { Dropdown } from 'react-native-element-dropdown';
 import Loader from '../Sections/Loader';
-import Toast from 'react-native-toast-message';
 import { RefreshControl } from 'react-native-gesture-handler';
 import LottieView from 'lottie-react-native';
 import holiday from "../assets/holiday.json"
+import Toast from 'react-native-toast-message';
 const Home = () => {
   const {logout} = useContext (AuthContext);
   const navigation = useNavigation ();
@@ -143,9 +143,6 @@ const Home = () => {
     try {
       const res = await attendanceStatus(userId);
       if (res.success) {
-        console.log('====================================');
-        console.log(res.data);
-        console.log('====================================');
         setAttendace(res.data);
         // Get addresses for check-in and check-out
         if (res.data.checkIn) {
@@ -179,14 +176,14 @@ const Home = () => {
 
   const handleOpenCamera = () => {
     if(!selectedSite){
-      Toast.show ({
-              type: 'error', 
-              text1: 'Select Site first',
-              position: 'top',
-            });
-            return;
+      Alert.alert(
+        "Site Selection Required",
+        "Please select a site before checking in/out",
+        [{ text: "OK" }]
+      );
+      return;
     }
-    setModalVisible (true);
+    setModalVisible(true);
   };
 
   const handleTakePicture = async () => {
@@ -203,7 +200,8 @@ const Home = () => {
           Toast.show({
             type: 'error',
             text1: 'Failed to upload photo',
-            position: 'top',
+            text2: 'Please try again',
+            position: 'center',
           });
           return;
         }
@@ -229,7 +227,8 @@ const Home = () => {
         Toast.show({
           type: 'error',
           text1: 'Failed to process photo and attendance',
-          position: 'top',
+          text2: 'Please try again',
+          position: 'center',
         });
       } finally {
         setLoading(false);
@@ -241,14 +240,29 @@ const Home = () => {
     try {
       const res = await attendanceCheckIn(data);
       if (res.success) {
-        Alert.alert('Success', 'Check-in successful!');
+        Toast.show({
+          type: 'success',
+          text1: 'Check-in Successful!',
+          text2: 'You have been checked in successfully',
+          position: 'center',
+        });
         // Refresh attendance status
         await getAttendanceStatus(data.userId);
       } else {
-        Alert.alert('Error', res.message || 'Check-in failed');
+        Toast.show({
+          type: 'error',
+          text1: 'Check-in Failed',
+          text2: res.message || 'Please try again',
+          position: 'center',
+        });
       }
     } catch (error) {
-      Alert.alert('Error', 'Failed to check in');
+      Toast.show({
+        type: 'error',
+        text1: 'Check-in Failed',
+        text2: 'Please try again',
+        position: 'center',
+      });
     }
   };
 
@@ -256,14 +270,29 @@ const Home = () => {
     try {
       const res = await attendanceCheckOut(data);
       if (res.success) {
-        Alert.alert('Success', 'Check-out successful!');
+        Toast.show({
+          type: 'success',
+          text1: 'Check-out Successful!',
+          text2: 'You have been checked out successfully',
+          position: 'center',
+        });
         // Refresh attendance status
         await getAttendanceStatus(data.userId);
       } else {
-        Alert.alert('Error', res.message || 'Check-out failed');
+        Toast.show({
+          type: 'error',
+          text1: 'Check-out Failed',
+          text2: res.message || 'Please try again',
+          position: 'center',
+        });
       }
     } catch (error) {
-      Alert.alert('Error', 'Failed to check out');
+      Toast.show({
+        type: 'error',
+        text1: 'Check-out Failed',
+        text2: 'Please try again',
+        position: 'center',
+      });
     }
   };
 
@@ -315,7 +344,7 @@ const Home = () => {
               <View style={style.imageContainer}>
                 <Image
                   source={{uri:data.profileImage?data.profileImage.imageUrl:""}}
-                   style={style.image}
+                  style={style.image}
                   resizeMode="cover"
                 />
               </View>
@@ -329,7 +358,8 @@ const Home = () => {
           <View style={style.mainSection}>
             <View style={style.header}>
               <View>
-              <Dropdown
+             { !attendance.canCheckIn &&
+                  !attendance.canCheckOut ?<></>:<Dropdown
                 data={sites}
                 search
                 maxHeight={200}
@@ -345,7 +375,7 @@ const Home = () => {
                 }}
                 disabled={attendance.canCheckOut}
                 style={{marginTop: 10,width:screenWidth*0.9 , backgroundColor:"#D3D3D3" , padding:15, borderRadius:10}}
-              />
+              />}
                 {/* <DropDownPicker
                   open={siteDropdown}
                   value={shiftData.site}
@@ -469,6 +499,13 @@ const Home = () => {
   <Ionicons name="camera-reverse-outline" size={30} color="white" />
 </TouchableOpacity>
 
+      <TouchableOpacity 
+        onPress={() => setModalVisible(false)} 
+        style={style.closeButton}
+      >
+        <Ionicons name="close" size={30} color="white" />
+      </TouchableOpacity>
+
         <CameraView ref={cameraRef} style={style.camera} facing={cameraType}>
           <View style={style.cameraContainer}>
             <TouchableOpacity
@@ -528,20 +565,17 @@ const style = StyleSheet.create ({
     fontSize: 17,
     color: 'gray',
   },
-  imageContainer:{
-
+  imageContainer: {
     width: 100,
     height: 100,
-    borderRadius:50,
-    overflow:"hidden",
-    backgroundColor:color.primary,
+    borderRadius: 50,
+    overflow: "hidden",
+    backgroundColor: color.primary,
   },
   image: {
     width: "100%",
     height: "100%",
-  
-// overflow:"hidden",
-//     borderRadius: 50
+    borderRadius: 50,
   },
   mainSection: {
     paddingVertical: 20,
@@ -587,9 +621,9 @@ const style = StyleSheet.create ({
   },
   container: {
     margin: 10,
-    borderRadius:20,
-    backgroundColor:"white",
-    shadowColor:color.text,
+    borderRadius: 20,
+    backgroundColor: "white",
+    shadowColor: color.text,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 5,
@@ -599,11 +633,13 @@ const style = StyleSheet.create ({
     paddingVertical: 20,
     width: '100%',
     padding: 12,
-    shadowColor: 'black',
-    shadowRadius: 20,
-    shadowOpacity: 0.5,
-    borderRadius: 10,
+    backgroundColor: 'white',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
     elevation: 5,
+    borderRadius: 10,
   },
   cardBody: {
     flexDirection: 'row',
@@ -631,16 +667,6 @@ const style = StyleSheet.create ({
     height: 60,
     borderRadius:10
   },
-  buttonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  image: {
-    width: 100,
-    height: 100,
-    marginVertical: 10,
-  },
   camera: {
     flex: 1,
   },
@@ -659,6 +685,15 @@ const style = StyleSheet.create ({
     position: 'absolute',
     top: 40,
     right: 20,
+    zIndex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    padding: 10,
+    borderRadius: 20,
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 40,
+    left: 20,
     zIndex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
     padding: 10,

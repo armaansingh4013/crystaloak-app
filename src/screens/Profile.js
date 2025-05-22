@@ -21,6 +21,8 @@ import { base_url } from '../api';
 import ProfileUpdateModal from '../Sections/ProfileUpdateModal';
 import profile from "../assets/profile.png"
 import ImageViewer from '../components/ImageViewer';
+import Toast from 'react-native-toast-message';
+import Loader from '../Sections/Loader';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -32,6 +34,7 @@ const Profile = () => {
   const [profileUpdate, setProfileUpdate] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [imageViewerVisible, setImageViewerVisible] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   const pickImageFromGallery = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -73,6 +76,7 @@ const Profile = () => {
   };
 
   const uploadPhoto = async (uri) => {
+    setIsUploading(true);
     const formData = new FormData();
     const fileType = mime.getType(uri) || 'image/jpeg';
 
@@ -90,10 +94,32 @@ const Profile = () => {
       const res = await uploadPhotos(formData);
       
       const res2 = await updateProfile({ photo: res.data.paths[0] });
-      setRefresh(!refresh);
+      if (res2.success) {
+        Toast.show({
+          type: 'success',
+          text1: 'Profile Picture Updated',
+          text2: 'Your profile picture has been updated successfully',
+          position: 'top',
+        });
+        setRefresh(!refresh);
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: 'Update Failed',
+          text2: res2.message || 'Failed to update profile picture',
+          position: 'top',
+        });
+      }
     } catch (error) {
       console.error('Upload failed:', error);
-      Alert.alert('Upload failed', 'Check console for details.');
+      Toast.show({
+        type: 'error',
+        text1: 'Upload Failed',
+        text2: 'Failed to upload profile picture. Please try again.',
+        position: 'top',
+      });
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -116,6 +142,7 @@ const Profile = () => {
 
   return (
     <>
+      {isUploading && <Loader message="Uploading profile picture..." />}
       <ScrollView
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />

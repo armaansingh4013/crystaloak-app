@@ -7,11 +7,14 @@ import {
   TouchableOpacity,
   TextInput,
   RefreshControl,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Header from '../Sections/Header';
 import color from '../styles/globals';
 import Loader from '../Sections/Loader';
+import { getEstimations } from '../controller/website/estimations';
+import ImageViewer from '../components/ImageViewer';
 
 const Estimations = ({ navigation }) => {
   const [estimations, setEstimations] = useState([]);
@@ -19,6 +22,8 @@ const Estimations = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [imageViewerVisible, setImageViewerVisible] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
     fetchEstimations();
@@ -30,39 +35,43 @@ const Estimations = ({ navigation }) => {
 
   const fetchEstimations = async () => {
     // TODO: Replace with actual API call
+    const res = await getEstimations()
+    if (res.success){
+      setEstimations(res.data)
+    }
     // For now using the sample data
-    setEstimations([
-      {
-        "_id": "681c7e543ab09d55758ff6c2",
-        "name": "Komalpreet Kaur",
-        "email": "komalpreet@icloud.com",
-        "phone": "8427088417",
-        "address": "kapurthala , Punjab , India",
-        "estimations": [
-          {
-            "rates": {
-              "high": 1800,
-              "mid": 1500,
-              "low": 1250
-            },
-            "name": "New Build",
-            "vat": false,
-            "hasDimensions": true,
-            "selectedRate": "mid",
-            "rows": [
-              {
-                "length": 1,
-                "width": 1,
-                "quantity": 1,
-                "_id": "681c7e543ab09d55758ff6c4"
-              }
-            ],
-            "_id": "681c7e543ab09d55758ff6c3"
-          }
-        ],
-        "createdAt": "2025-05-08T09:50:12.861Z"
-      }
-    ]);
+    // setEstimations([
+    //   {
+    //     "_id": "681c7e543ab09d55758ff6c2",
+    //     "name": "Komalpreet Kaur",
+    //     "email": "komalpreet@icloud.com",
+    //     "phone": "8427088417",
+    //     "address": "kapurthala , Punjab , India",
+    //     "estimations": [
+    //       {
+    //         "rates": {
+    //           "high": 1800,
+    //           "mid": 1500,
+    //           "low": 1250
+    //         },
+    //         "name": "New Build",
+    //         "vat": false,
+    //         "hasDimensions": true,
+    //         "selectedRate": "mid",
+    //         "rows": [
+    //           {
+    //             "length": 1,
+    //             "width": 1,
+    //             "quantity": 1,
+    //             "_id": "681c7e543ab09d55758ff6c4"
+    //           }
+    //         ],
+    //         "_id": "681c7e543ab09d55758ff6c3"
+    //       }
+    //     ],
+    //     "createdAt": "2025-05-08T09:50:12.861Z"
+    //   }
+    // ]);
     setLoading(false);
     setRefreshing(false);
   };
@@ -117,10 +126,27 @@ const Estimations = ({ navigation }) => {
             <Ionicons name="location-outline" size={16} color={color.primary} />
             <Text style={styles.infoText} numberOfLines={1}>{item.address}</Text>
           </View>
+          {item.additionalDocument && (
+            <View style={styles.documentContainer}>
+              <Text style={styles.label}>Additional Document: </Text>
+              <TouchableOpacity 
+                onPress={() => {
+                  setSelectedImage(item.additionalDocument);
+                  setImageViewerVisible(true);
+                }}
+              >
+                <Image 
+                  source={{ uri: item.additionalDocument }} 
+                  style={styles.documentPreview}
+                  resizeMode="cover"
+                />
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
 
         <View style={styles.cardFooter}>
-          <Text style={styles.amount}>₹{totalAmount.toLocaleString()}</Text>
+          <Text style={styles.amount}>£{totalAmount.toLocaleString()}</Text>
           <Text style={styles.items}>{item.estimations.length} items</Text>
         </View>
       </TouchableOpacity>
@@ -129,7 +155,7 @@ const Estimations = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Header title="Estimations" />
+      <Header title="Estimations" onBackPress={() => navigation.goBack()}/>
       <View style={styles.searchContainer}>
         <Ionicons name="search" size={20} color="gray" style={styles.searchIcon} />
         <TextInput
@@ -149,6 +175,11 @@ const Estimations = ({ navigation }) => {
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
+      />
+      <ImageViewer
+        visible={imageViewerVisible}
+        imageUrl={selectedImage}
+        onClose={() => setImageViewerVisible(false)}
       />
     </View>
   );
@@ -231,6 +262,19 @@ const styles = StyleSheet.create({
   items: {
     fontSize: 14,
     color: '#666',
+  },
+  documentContainer: {
+    marginTop: 8,
+  },
+  label: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 4,
+  },
+  documentPreview: {
+    width: 100,
+    height: 100,
+    borderRadius: 8,
   },
 });
 

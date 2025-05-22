@@ -12,8 +12,9 @@ import {
 } from 'react-native';
 import Header from '../Sections/Header';
 import color from '../styles/globals';
-import { getAllEmployees } from '../controller/admin/employees';
 import { Ionicons } from '@expo/vector-icons';
+import { getAllEmployees } from '../controller/admin/employees';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const PaySlipSelection = ({ navigation }) => {
   const [employees, setEmployees] = useState([]);
@@ -23,6 +24,10 @@ const PaySlipSelection = ({ navigation }) => {
   const [showEmployeeModal, setShowEmployeeModal] = useState(false);
   const [showPayTypeModal, setShowPayTypeModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [startDate, setStartDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(new Date());
+  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
+  const [showEndDatePicker, setShowEndDatePicker] = useState(false);
 
   useEffect(() => {
     fetchEmployees();
@@ -54,9 +59,23 @@ const PaySlipSelection = ({ navigation }) => {
       Alert.alert('Error', 'Please select an employee');
       return;
     }
+    if (endDate < startDate) {
+      Alert.alert('Error', 'End date cannot be before start date');
+      return;
+    }
     navigation.navigate('PaySlipDetails', {
-      employeeId: selectedEmployee._id,
-      payType: payType,
+      selectedEmployee,
+      payType,
+      startDate: startDate.toISOString().split('T')[0],
+      endDate: endDate.toISOString().split('T')[0],
+    });
+  };
+
+  const formatDate = (date) => {
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
     });
   };
 
@@ -66,7 +85,7 @@ const PaySlipSelection = ({ navigation }) => {
       onPress={() => {
         setSelectedEmployee(item);
         setShowEmployeeModal(false);
-        setSearchQuery(''); // Reset search when employee is selected
+        setSearchQuery('');
       }}
     >
       <Text style={styles.dropdownItemText}>{item.name}</Text>
@@ -89,7 +108,7 @@ const PaySlipSelection = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Header title="Pay Slip Generation" />
+      <Header title="Pay Slip Generation" onBackPress={() => navigation.goBack()}/>
       <ScrollView style={styles.content}>
         <View style={styles.section}>
           <Text style={styles.label}>Select Employee</Text>
@@ -117,6 +136,55 @@ const PaySlipSelection = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
+        <View style={styles.section}>
+          <Text style={styles.label}>Start Date</Text>
+          <TouchableOpacity
+            style={styles.dateButton}
+            onPress={() => setShowStartDatePicker(true)}
+          >
+            <Text style={styles.dateButtonText}>{formatDate(startDate)}</Text>
+            <Ionicons name="calendar" size={20} color="#666" />
+          </TouchableOpacity>
+          {/* Date Pickers */}
+      {showStartDatePicker && (
+        <DateTimePicker
+          value={startDate}
+          mode="date"
+          display="default"
+          onChange={(event, selectedDate) => {
+            setShowStartDatePicker(false);
+            if (selectedDate) {
+              setStartDate(selectedDate);
+            }
+          }}
+        />
+      )}
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.label}>End Date</Text>
+          <TouchableOpacity
+            style={styles.dateButton}
+            onPress={() => setShowEndDatePicker(true)}
+          >
+            <Text style={styles.dateButtonText}>{formatDate(endDate)}</Text>
+            <Ionicons name="calendar" size={20} color="#666" />
+          </TouchableOpacity>
+          {showEndDatePicker && (
+        <DateTimePicker
+          value={endDate}
+          mode="date"
+          display="default"
+          onChange={(event, selectedDate) => {
+            setShowEndDatePicker(false);
+            if (selectedDate) {
+              setEndDate(selectedDate);
+            }
+          }}
+        />
+      )}
+        </View>
+
         <TouchableOpacity style={styles.button} onPress={handleContinue}>
           <Text style={styles.buttonText}>Continue</Text>
         </TouchableOpacity>
@@ -129,7 +197,7 @@ const PaySlipSelection = ({ navigation }) => {
         animationType="slide"
         onRequestClose={() => {
           setShowEmployeeModal(false);
-          setSearchQuery(''); // Reset search when modal is closed
+          setSearchQuery('');
         }}
       >
         <View style={styles.modalContainer}>
@@ -139,7 +207,7 @@ const PaySlipSelection = ({ navigation }) => {
               <TouchableOpacity 
                 onPress={() => {
                   setShowEmployeeModal(false);
-                  setSearchQuery(''); // Reset search when modal is closed
+                  setSearchQuery('');
                 }}
               >
                 <Ionicons name="close" size={24} color="#666" />
@@ -201,6 +269,10 @@ const PaySlipSelection = ({ navigation }) => {
           </View>
         </View>
       </Modal>
+
+      
+
+     
     </View>
   );
 };
@@ -233,7 +305,21 @@ const styles = StyleSheet.create({
     padding: 15,
     backgroundColor: '#fff',
   },
+  dateButton: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 15,
+    backgroundColor: '#fff',
+  },
   dropdownButtonText: {
+    fontSize: 16,
+    color: '#333',
+  },
+  dateButtonText: {
     fontSize: 16,
     color: '#333',
   },

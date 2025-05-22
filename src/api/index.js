@@ -1,4 +1,4 @@
-export const base_url = 'http://192.168.1.38:5001';
+export const base_url = 'http://192.168.1.12:5001';
 // export const base_url = 'http://172.20.10.3:5001';
 // export const base_url = 'https://crystaloak-node.onrender.com';
 
@@ -33,12 +33,17 @@ const API = {
   services: base_url + '/api/services',
   //feedback
   feedback: base_url + '/api/feedback',
+  deleteFeedback: base_url+"/api/feedback/",
   //inquiry
   inquiry: base_url + '/api/inquiry',
+  //estimations
+  estimations:base_url +"/api/estimations",
   //shifts
   shifts: base_url + '/api/settings/shifts',
   //holidays
   holidays: base_url + '/api/holidays',
+  //paysip
+  payslip: base_url + '/api/admin/employees/payslip/'
 };
 
 export default API;

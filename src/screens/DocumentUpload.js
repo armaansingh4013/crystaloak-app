@@ -11,10 +11,11 @@ import {
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import color from '../styles/globals';
-import { uploadPhotos } from '../controller/photos';
 import { updateProfile } from '../controller/user/updateProfile';
 import Toast from 'react-native-toast-message';
 import mime from 'mime';
+import uploadPhotos from '../controller/photos';
+import Header from '../Sections/Header';
 
 const DocumentUpload = ({ navigation }) => {
   const [documents, setDocuments] = useState({
@@ -28,6 +29,7 @@ const DocumentUpload = ({ navigation }) => {
       accountName: '',
     },
   });
+  const [selectedPhoto,setSelectedPhoto] = useState("")
 
   const [loading, setLoading] = useState(false);
 
@@ -52,38 +54,33 @@ const DocumentUpload = ({ navigation }) => {
       setLoading(true);
 
       // Validate required fields
-      if (!documents.passportNumber || !documents.passportPhoto || !documents.insuranceNumber || 
+      if (!documents.passportNumber ||  !documents.insuranceNumber || 
           !documents.address || !documents.bankDetails.accountNumber || 
           !documents.bankDetails.sortCode || !documents.bankDetails.accountName) {
         Alert.alert('Error', 'Please fill in all required fields');
         return;
       }
-
-      // Upload passport photo
       const formData = new FormData();
-      const fileType = mime.getType(documents.passportPhoto) || 'image/jpeg';
-      
-      formData.append('photos', {
-        uri: documents.passportPhoto,
-        name: `passport_${Date.now()}.${mime.getExtension(fileType) || 'jpg'}`,
-        type: fileType,
-      });
-
-      const photoRes = await uploadPhotos(formData);
-      if (!photoRes.success) {
-        throw new Error('Failed to upload passport photo');
-      }
+    const fileType = mime.getType(selectedPhoto) || 'image/jpeg';
+    // Convert URI to Blob
+    const response = await fetch(selectedPhoto);
+    const blob = await response.blob();
+    formData.append('photos', {
+      uri: selectedPhoto,
+      name: `photo_${Date.now()}.${mime.getExtension(fileType) || 'jpg'}`,
+      type: fileType,
+    });
+      const res = await uploadPhotos(formData);
 
       // Update profile with document information
       const updateData = {
         documents: {
           passportNumber: documents.passportNumber,
-          passportPhoto: photoRes.data.paths[0],
+          passportPhoto: res.data.paths[0].imageUrl,
           insuranceNumber: documents.insuranceNumber,
           address: documents.address,
           bankDetails: documents.bankDetails,
-          documentsUploaded: true,
-          documentsVerified: false
+          documents: true,
         }
       };
 
@@ -94,7 +91,7 @@ const DocumentUpload = ({ navigation }) => {
           text1: 'Documents uploaded successfully',
           position: 'top',
         });
-        navigation.replace('Home');
+        navigation.replace('TabNavigator');
       } else {
         throw new Error(updateRes.message || 'Failed to update profile');
       }
@@ -104,15 +101,56 @@ const DocumentUpload = ({ navigation }) => {
         text1: error.message || 'Failed to upload documents',
         position: 'top',
       });
+      console.log('====================================');
+      console.log(error);
+      console.log('====================================');
     } finally {
       setLoading(false);
     }
   };
 
+  const pickImageFromGallery = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.IMAGE,
+      quality: 0.5, // Lower the quality to reduce size
+      base64: false, // Don't use base64 to avoid large payloads
+    });
+
+    if (!result.canceled) {
+      setSelectedPhoto(result.assets[0].uri);
+    }
+  };
+
+  const takePhotoWithCamera = async () => {
+    const permission = await ImagePicker.requestCameraPermissionsAsync();
+    if (!permission.granted) {
+      Alert.alert('Permission required', 'Please allow camera access.');
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      quality: 0.5, // Lower the quality to reduce size
+      base64: false, // Avoid base64 for faster uploads
+    });
+
+    if (!result.canceled) {
+      setSelectedPhoto(result.assets[0].uri);
+    }
+  };
+
+  const handleImageSelect = () => {
+    Alert.alert('Upload Photo', 'Choose an option', [
+      { text: 'Take Photo', onPress: takePhotoWithCamera },
+      { text: 'Choose from Gallery', onPress: pickImageFromGallery },
+      { text: 'Cancel', style: 'cancel' },
+    ]);
+  };
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Document Upload</Text>
+
+      <Header title="Document Upload" />
+        {/* <Text style={styles.title}>Document Upload</Text> */}
         <Text style={styles.subtitle}>Please provide the following documents to complete your profile</Text>
       </View>
 
@@ -126,9 +164,9 @@ const DocumentUpload = ({ navigation }) => {
         />
 
         <Text style={styles.label}>Passport Photo *</Text>
-        <TouchableOpacity style={styles.photoButton} onPress={pickImage}>
-          {documents.passportPhoto ? (
-            <Image source={{ uri: documents.passportPhoto }} style={styles.photoPreview} />
+        <TouchableOpacity style={styles.photoButton} onPress={handleImageSelect}>
+          {selectedPhoto ? (
+            <Image source={{ uri: selectedPhoto }} style={styles.photoPreview} />
           ) : (
             <Text style={styles.photoButtonText}>Upload Passport Photo</Text>
           )}

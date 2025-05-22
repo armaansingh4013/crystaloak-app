@@ -297,14 +297,11 @@ const AdminAddEmployee = ({ route, navigation }) => {
       if (result.action === Share.sharedAction) {
         if (result.activityType) {
           // Shared with activity type of result.activityType
-          console.log('Shared with', result.activityType);
         } else {
           // Shared
-          console.log('Shared');
         }
       } else if (result.action === Share.dismissedAction) {
         // Dismissed
-        console.log('Dismissed');
       }
     } catch (error) {
       console.error('Share Error:', error);
@@ -450,9 +447,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   container: {
-    paddingVertical: 30,
-    paddingHorizontal: 10,
-    backgroundColor: '#d3d3d3',
+    paddingVertical: 20,
+    // paddingHorizontal: 10,
+    // backgroundColor: '#d3d3d3',
     flexGrow: 1,
     borderRadius: 10,
     marginVertical: 10,
@@ -477,7 +474,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fff',
-    borderRadius: 16,
+    borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: Platform.OS === 'ios' ? 14 : 5,
     borderWidth: 1,

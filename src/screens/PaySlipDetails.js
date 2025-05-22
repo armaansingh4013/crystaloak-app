@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -11,71 +11,42 @@ import {
 } from 'react-native';
 import Header from '../Sections/Header';
 import color from '../styles/globals';
-import { getEmployeeDetails, updateEmployeeAddress } from '../controller/employee'; // You'll need to create these API calls
 
 const PaySlipDetails = ({ route, navigation }) => {
-  const { employeeId, payType } = route.params;
-  const [employee, setEmployee] = useState(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedAddress, setEditedAddress] = useState('');
+  const { selectedEmployee, payType ,startDate,endDate} = route.params;
+  const [editedAddress, setEditedAddress] = useState(selectedEmployee.address);
   const [showEditModal, setShowEditModal] = useState(false);
 
-  useEffect(() => {
-    fetchEmployeeDetails();
-  }, []);
-
-  const fetchEmployeeDetails = async () => {
-    try {
-      const response = await getEmployeeDetails(employeeId);
-      setEmployee(response);
-      setEditedAddress(response.address);
-    } catch (error) {
-      Alert.alert('Error', 'Failed to fetch employee details');
-    }
-  };
-
-  const handleSaveAddress = async () => {
-    try {
-      await updateEmployeeAddress(employeeId, editedAddress);
-      setEmployee({ ...employee, address: editedAddress });
-      setShowEditModal(false);
-      Alert.alert('Success', 'Address updated successfully');
-    } catch (error) {
-      Alert.alert('Error', 'Failed to update address');
-    }
+  const handleSaveAddress = () => {
+    setShowEditModal(false);
+    Alert.alert('Success', 'Address updated for pay slip');
   };
 
   const handleGeneratePaySlip = () => {
     navigation.navigate('PaySlipView', {
-      employeeId,
+      employeeId: selectedEmployee._id,
       payType,
-      employeeData: employee,
+      startDate,
+      endDate,
+      employeeData: {
+        ...selectedEmployee,
+        address: editedAddress, // Use the edited address
+      },
     });
   };
 
-  if (!employee) {
-    return (
-      <View style={styles.container}>
-        <Header title="Employee Details" />
-        <View style={styles.loadingContainer}>
-          <Text>Loading...</Text>
-        </View>
-      </View>
-    );
-  }
-
   return (
     <View style={styles.container}>
-      <Header title="Employee Details" />
+      <Header title="Employee Details" onBackPress={() => navigation.goBack()} />
       <ScrollView style={styles.content}>
         <View style={styles.section}>
           <Text style={styles.label}>Employee Information</Text>
           <View style={styles.infoContainer}>
-            <Text style={styles.infoText}>Name: {employee.name}</Text>
-            <Text style={styles.infoText}>ID: {employee.id}</Text>
-            <Text style={styles.infoText}>Email: {employee.email}</Text>
-            <Text style={styles.infoText}>Phone: {employee.phone}</Text>
-            <Text style={styles.infoText}>Address: {employee.address}</Text>
+            <Text style={styles.infoText}>Name: {selectedEmployee.name}</Text>
+            <Text style={styles.infoText}>ID: {selectedEmployee._id}</Text>
+            <Text style={styles.infoText}>Email: {selectedEmployee.email}</Text>
+            <Text style={styles.infoText}>Phone: {selectedEmployee.phone}</Text>
+            <Text style={styles.infoText}>Address: {editedAddress}</Text>
           </View>
         </View>
 
@@ -83,7 +54,7 @@ const PaySlipDetails = ({ route, navigation }) => {
           style={styles.editButton}
           onPress={() => setShowEditModal(true)}
         >
-          <Text style={styles.editButtonText}>Edit Address</Text>
+          <Text style={styles.editButtonText}>Edit Address for Pay Slip</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -100,18 +71,22 @@ const PaySlipDetails = ({ route, navigation }) => {
         >
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Edit Address</Text>
+              <Text style={styles.modalTitle}>Edit Address for Pay Slip</Text>
               <TextInput
                 style={styles.addressInput}
                 value={editedAddress}
                 onChangeText={setEditedAddress}
                 multiline
                 numberOfLines={4}
+                placeholder="Enter address for pay slip"
               />
               <View style={styles.modalButtons}>
                 <TouchableOpacity
                   style={[styles.modalButton, styles.cancelButton]}
-                  onPress={() => setShowEditModal(false)}
+                  onPress={() => {
+                    setEditedAddress(selectedEmployee.address); // Reset to original address
+                    setShowEditModal(false);
+                  }}
                 >
                   <Text style={styles.modalButtonText}>Cancel</Text>
                 </TouchableOpacity>
@@ -138,11 +113,6 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     padding: 20,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   section: {
     marginBottom: 20,

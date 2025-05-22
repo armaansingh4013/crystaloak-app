@@ -310,7 +310,7 @@ const ProfileUpdateModal = ({ visible, data, onClose }) => {
           <View style={styles.header}>
             <Text style={styles.headerTitle}>Edit Profile</Text>
             <TouchableOpacity onPress={onClose}>
-              <Text style={styles.closeText}>Close</Text>
+              <Icon name="close" size={24} color={color.primary} />
             </TouchableOpacity>
           </View>
 
@@ -392,7 +392,7 @@ const styles = StyleSheet.create({
   },
   passwordInputContainer: {
     position: 'relative',
-    marginBottom: 12,
+    // marginBottom: 12,
   },
   passwordInput: {
     paddingRight: 50,

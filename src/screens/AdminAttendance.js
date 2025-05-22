@@ -32,7 +32,6 @@ const AdminAttendance = () => {
     const res = await getDateAttendance (date);
     
     if (res.success) {
-      console.log(res.data)
       setData (res.data);
     }
     setLoading(false)

@@ -12,11 +12,15 @@ import {
   TouchableOpacity,
   Modal,
   Dimensions,
+  Alert,
+  Platform,
+  Linking,
 } from 'react-native';
-import { getFeedbacks } from '../controller/website/feedback';
+import { getFeedbacks, deleteFeedback } from '../controller/website/feedback';
 import Header from '../Sections/Header';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import WebView from 'react-native-webview';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -25,9 +29,11 @@ const FeedbackListScreen = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const navigation = useNavigation();
-  const [selectedImages, setSelectedImages] = useState(null);
+  const [selectedMedia, setSelectedMedia] = useState(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isVideo, setIsVideo] = useState(false);
+  const [videoError, setVideoError] = useState(false);
 
   useEffect(() => {
     fetchFeedbacks();
@@ -37,7 +43,7 @@ const FeedbackListScreen = () => {
     try {
       const res = await getFeedbacks();
       if (res.success) {
-        setFeedbacks(res.data);
+        setFeedbacks(res.data.data);
       }
     } catch (err) {
       console.error('Error fetching feedbacks:', err);
@@ -52,13 +58,47 @@ const FeedbackListScreen = () => {
     fetchFeedbacks();
   };
 
-  const handleImagePress = (images, index) => {
-    setSelectedImages(images);
-    setSelectedIndex(index);
-    setIsModalVisible(true);
+  const handleDelete = async (feedbackId) => {
+    Alert.alert(
+      'Delete Feedback',
+      'Are you sure you want to delete this feedback?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const res = await deleteFeedback(feedbackId);
+              if (res.success) {
+                setFeedbacks(feedbacks.filter(f => f._id !== feedbackId));
+              }
+            } catch (err) {
+              console.error('Error deleting feedback:', err);
+              Alert.alert('Error', 'Failed to delete feedback');
+            }
+          },
+        },
+      ]
+    );
   };
 
-  const renderImagePreview = () => (
+  const handleMediaPress = (media, index, isVideoMedia = false) => {
+    if (isVideoMedia) {
+      // Open video in device's default video player
+      Linking.openURL(media[index]);
+    } else {
+      setSelectedMedia(media);
+      setSelectedIndex(index);
+      setIsVideo(false);
+      setIsModalVisible(true);
+    }
+  };
+
+  const renderMediaPreview = () => (
     <Modal
       visible={isModalVisible}
       transparent
@@ -74,12 +114,12 @@ const FeedbackListScreen = () => {
             <Icon name="close" size={24} color="#fff" />
           </TouchableOpacity>
           <Text style={styles.counter}>
-            {selectedIndex + 1} / {selectedImages?.length}
+            {selectedIndex + 1} / {selectedMedia?.length}
           </Text>
         </View>
 
         <FlatList
-          data={selectedImages}
+          data={selectedMedia}
           horizontal
           pagingEnabled
           showsHorizontalScrollIndicator={false}
@@ -96,10 +136,10 @@ const FeedbackListScreen = () => {
             setSelectedIndex(newIndex);
           }}
           renderItem={({ item }) => (
-            <View style={styles.imageContainer}>
+            <View style={styles.mediaContainer}>
               <Image
                 source={{ uri: item }}
-                style={styles.previewImage}
+                style={styles.previewMedia}
                 resizeMode="contain"
               />
             </View>
@@ -110,33 +150,62 @@ const FeedbackListScreen = () => {
     </Modal>
   );
 
-  const renderFeedback = ({ item }) => (
-    <View style={styles.card}>
-      <Text style={styles.name}>{item.name}</Text>
-      <Text style={styles.email}>{item.email}</Text>
-      <Text style={styles.message}>{item.message}</Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imageRow}>
-        {item.images.map((img, index) => (
+  const renderFeedback = ({ item }) => {
+    return (
+      <View style={styles.card}>
+        <View style={styles.cardHeader}>
+          <View>
+            <Text style={styles.name}>{item.name}</Text>
+            <Text style={styles.email}>{item.email}</Text>
+          </View>
           <TouchableOpacity
-            key={index}
-            onPress={() => handleImagePress(item.images.map(img => img.imageUrl), index)}
+            onPress={() => handleDelete(item._id)}
+            style={styles.deleteButton}
           >
-            <Image source={{ uri: img.imageUrl }} style={styles.thumbnail} />
+            <Icon name="delete" size={24} color="#ef4444" />
           </TouchableOpacity>
-        ))}
-      </ScrollView>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imageRow}>
-        {item.videos.map((img, index) => (
-          <TouchableOpacity
-            key={index}
-            onPress={() => handleImagePress(item.videos.map(video => video.url), index)}
-          >
-            <Image source={{ uri: img.url }} style={styles.thumbnail} />
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-    </View>
-  );
+        </View>
+        
+        <View style={styles.ratingContainer}>
+          <Icon name="star" size={20} color="#f59e0b" />
+          <Text style={styles.ratingText}>{item.rating || 'No rating'}</Text>
+        </View>
+
+        <Text style={styles.message}>{item.message}</Text>
+
+        {item.images.length > 0 && (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.mediaRow}>
+            {item.images.map((img, index) => (
+              <TouchableOpacity
+                key={index}
+                onPress={() => handleMediaPress(item.images.map(img => img.imageUrl), index)}
+              >
+                <Image source={{ uri: img.imageUrl }} style={styles.thumbnail} />
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        )}
+
+        {item.videos.length > 0 && (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.mediaRow}>
+            {item.videos.map((video, index) => (
+              <TouchableOpacity
+                key={index}
+                onPress={() => handleMediaPress(item.videos.map(v => v.url), index, true)}
+              >
+                <View style={styles.videoThumbnail}>
+                  <Image source={{ uri: video.thumbnailUrl }} style={styles.thumbnail} />
+                  <View style={styles.playButton}>
+                    <Icon name="play-circle-filled" size={30} color="#fff" />
+                  </View>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        )}
+      </View>
+    );
+  };
 
   if (loading) {
     return (
@@ -146,7 +215,6 @@ const FeedbackListScreen = () => {
       </View>
     );
   }
-
   return (
     <SafeAreaView style={styles.container}>
       <Header onBackPress={() => navigation.goBack()} title="Website Feedbacks" />
@@ -159,7 +227,7 @@ const FeedbackListScreen = () => {
         renderItem={renderFeedback}
         contentContainerStyle={styles.listContent}
       />
-      {renderImagePreview()}
+      {renderMediaPreview()}
     </SafeAreaView>
   );
 };
@@ -225,6 +293,7 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     flex: 1,
+    marginVertical: 30,
     backgroundColor: 'rgba(0,0,0,0.9)',
   },
   modalHeader: {
@@ -255,6 +324,63 @@ const styles = StyleSheet.create({
   previewImage: {
     width: '100%',
     height: '100%',
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 8,
+  },
+  deleteButton: {
+    padding: 4,
+  },
+  ratingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  ratingText: {
+    marginLeft: 4,
+    fontSize: 16,
+    color: '#f59e0b',
+    fontWeight: '600',
+  },
+  mediaRow: {
+    flexDirection: 'row',
+    marginTop: 8,
+  },
+  videoThumbnail: {
+    position: 'relative',
+  },
+  playButton: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: [{ translateX: -15 }, { translateY: -15 }],
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    borderRadius: 15,
+  },
+  mediaContainer: {
+    width: SCREEN_WIDTH,
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#000',
+  },
+  previewMedia: {
+    width: '100%',
+    height: '100%',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f3f4f6',
+  },
+  errorText: {
+    marginTop: 10,
+    color: '#ef4444',
+    fontSize: 16,
   },
 });
 

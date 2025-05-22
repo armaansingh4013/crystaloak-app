@@ -6,9 +6,6 @@ const uploadPhotos = async (formData) => {
 
 const token = await getToken()
 try{
-  console.log('====================================');
-  console.log(formData);
-  console.log('====================================');  
 const response = await fetch(API.uploadPhoto, {
   method: 'POST',
   headers: {

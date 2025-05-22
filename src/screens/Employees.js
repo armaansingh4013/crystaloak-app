@@ -135,7 +135,7 @@ const Employees = () => {
       <TouchableOpacity
         onLongPress={() => {
           if (item.profileImage) {
-            setSelectedImage(`${base_url}/${item.profileImage}`);
+            setSelectedImage(`${item.profileImage.imageUrl}`);
             setImageViewerVisible(true);
           }
         }}
@@ -145,7 +145,7 @@ const Employees = () => {
           style={styles.circle}
           source={
             item.profileImage
-              ? { uri: item.profileImage }
+              ? { uri: item.profileImage.imageUrl }
               : profile
           }
         />

@@ -39,9 +39,9 @@ const EstimationDetails = ({ route, navigation }) => {
           return (
             <View key={est._id} style={styles.tableRow}>
               <Text style={[styles.cell, { flex: 2 }]}>{est.name}</Text>
-              <Text style={styles.cell}>₹{rate}</Text>
+              <Text style={styles.cell}>£{rate}</Text>
               <Text style={styles.cell}>{area} sq.ft</Text>
-              <Text style={styles.cell}>₹{amount}</Text>
+              <Text style={styles.cell}>£{amount}</Text>
             </View>
           );
         })}
@@ -50,7 +50,7 @@ const EstimationDetails = ({ route, navigation }) => {
           <Text style={[styles.footerCell, { flex: 2 }]}>Total</Text>
           <Text style={styles.footerCell}></Text>
           <Text style={styles.footerCell}></Text>
-          <Text style={styles.footerCell}>₹{calculateTotal(estimation)}</Text>
+          <Text style={styles.footerCell}>£{calculateTotal(estimation)}</Text>
         </View>
       </View>
     );
@@ -60,6 +60,7 @@ const EstimationDetails = ({ route, navigation }) => {
     <View style={styles.container}>
       <Header 
         title="Estimation Details" 
+        onBackPress={() => navigation.goBack()}
         leftComponent={
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={24} color="white" />

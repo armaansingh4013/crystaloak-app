@@ -2,13 +2,12 @@ import {getToken} from '../../components/Storage';
 import API from '../../api/index';
 export const updateProfile = async data => {
   try {
-    const bodyData = {};
-
+    let bodyData = {};
     if (data.name) bodyData.name = data.name;
     if (data.email) bodyData.email = data.email;
     if (data.phoneNumber) bodyData.phoneNumber = data.phoneNumber;
     if (data.photo) bodyData.profileImage = data.photo;
-    if (data.documents) bodyData.documents = data.documents;
+    if (data.documents) bodyData = data.documents;
 
     const token = await getToken();
     const response = await fetch(API.updateProfile, {

@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, StatusBar } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, StatusBar, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import color from "../styles/globals"
+
 const Header = ({ title, onBackPress, rightComponent }) => {
   return (
     <>
@@ -10,12 +11,12 @@ const Header = ({ title, onBackPress, rightComponent }) => {
       barStyle="light-content"
     />
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
+      <View style={[styles.container, Platform.OS === 'android' && { paddingTop: StatusBar.currentHeight }]}>
         {/* Left */}
         <View style={styles.side}>
           {onBackPress && (
             <TouchableOpacity onPress={onBackPress}>
-              <Ionicons name="arrow-back" size={24} color="black" />
+              <Ionicons name="arrow-back" size={24} color="white" />
             </TouchableOpacity>
           )}
         </View>
@@ -56,7 +57,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: '600',
-    color:"white"
+    color: "white"
   },
 });
 

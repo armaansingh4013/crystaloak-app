@@ -1,15 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, SafeAreaView, ScrollView, RefreshControl } from 'react-native';
+import { View, Text, FlatList, StyleSheet, SafeAreaView, ScrollView, RefreshControl, TouchableOpacity, Image } from 'react-native';
 import Header from '../Sections/Header';
 import { useNavigation } from '@react-navigation/native';
 import { getInquiries } from '../controller/website/inquiry';
 import Loader from '../Sections/Loader';
+import ImageViewer from '../components/ImageViewer';
 
 const QueryListScreen = () => {
     const [enquiries,setEnquiries] = useState([])
-      const navigation = useNavigation()
-      const [refreshing,setRefreshing] = useState(false)
-      const [loading,setLoading] = useState(true)
+    const navigation = useNavigation()
+    const [refreshing,setRefreshing] = useState(false)
+    const [loading,setLoading] = useState(true)
+    const [imageViewerVisible, setImageViewerVisible] = useState(false);
+    const [selectedImage, setSelectedImage] = useState(null);
+
 useEffect(() => {
   fetchData()
 }, [])
@@ -39,6 +43,23 @@ const fetchData = async ()=>{
      <View style={styles.row}><Text style={styles.label}>Address: </Text><Text style={styles.value}>{item.address}</Text></View>
      <View style={styles.row}><Text style={styles.label}>Spcial Requirements: </Text><Text style={styles.value}>{item.message}</Text></View>
 
+      {item.additionalDocument && (
+        <View style={styles.documentContainer}>
+          <Text style={styles.label}>Additional Document: </Text>
+          <TouchableOpacity 
+            onPress={() => {
+              setSelectedImage(item.additionalDocument);
+              setImageViewerVisible(true);
+            }}
+          >
+            <Image 
+              source={{ uri: item.additionalDocument }} 
+              style={styles.documentPreview}
+              resizeMode="cover"
+            />
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 
@@ -56,6 +77,11 @@ const fetchData = async ()=>{
         keyExtractor={(item, index) => index.toString()}
         renderItem={renderEnquiry}
         contentContainerStyle={styles.list}
+      />
+      <ImageViewer
+        visible={imageViewerVisible}
+        imageUrl={selectedImage}
+        onClose={() => setImageViewerVisible(false)}
       />
     </View>
   );
@@ -117,6 +143,15 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
     color: '#111827',
+  },
+  documentContainer: {
+    marginTop: 10,
+  },
+  documentPreview: {
+    width: 100,
+    height: 100,
+    borderRadius: 8,
+    marginTop: 5,
   },
 });
 
