@@ -23,38 +23,38 @@ import uploadPhotos from '../controller/photos';
 import mime from 'mime';
 import {workImagesPost} from '../controller/attendance';
 import Header from '../Sections/Header';
-const screenHeight = Dimensions.get ('window').height;
-const screenWidth = Dimensions.get ('window').width;
+import Loader from '../Sections/Loader';
+import LottieView from 'lottie-react-native';
+import uploadImage from "../assets/uploadImage.json"
+const screenHeight = Dimensions.get('window').height;
+const screenWidth = Dimensions.get('window').width;
 
 const WorkImages = ({navigation}) => {
-  const [images, setImages] = useState ([])
-  const [message, setMessage] = useState ('');
-  const [modalVisible, setModalVisible] = useState (false);
-  const [selectedFiles, setSelectedFiles] = useState ([]);
-
-  // Request permissions on mount
-  useEffect (() => {
+  const [images, setImages] = useState([]);
+  const [message, setMessage] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [loading,setLoading] = useState(false)
+  useEffect(() => {
     (async () => {
-      const {status} = await ImagePicker.requestMediaLibraryPermissionsAsync ();
+      const {status} = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert (
+        Alert.alert(
           'Permission Required',
           'Please allow access to camera and photos.'
         );
       }
-    }) ();
+    })();
   }, []);
 
-  // Open modal on screen focus
-  useFocusEffect (
-    React.useCallback (() => {
-      setModalVisible (true);
+  useFocusEffect(
+    React.useCallback(() => {
+      setModalVisible(true);
     }, [])
   );
 
-  // Pick images from gallery
   const pickImages = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync ({
+    const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsMultipleSelection: true,
       quality: 1,
@@ -62,78 +62,77 @@ const WorkImages = ({navigation}) => {
     });
 
     if (!result.canceled) {
-      const newImages = result.assets.map (asset => asset.uri);
-      setImages (prevImages => [...prevImages, ...newImages]);
-
-      // Store selected images for uploading
-      setSelectedFiles (prevFiles => [...prevFiles, ...result.assets]);
+      const newImages = result.assets.map(asset => asset.uri);
+      setImages(prevImages => [...prevImages, ...newImages]);
+      setSelectedFiles(prevFiles => [...prevFiles, ...result.assets]);
     }
 
-    setModalVisible (false);
+    setModalVisible(false);
   };
 
-  // Open camera
   const openCamera = async () => {
-    const cameraPermission = await ImagePicker.requestCameraPermissionsAsync ();
+    const cameraPermission = await ImagePicker.requestCameraPermissionsAsync();
     if (cameraPermission.status !== 'granted') {
-      Alert.alert ('Permission Required', 'Please allow access to the camera.');
+      Alert.alert('Permission Required', 'Please allow access to the camera.');
       return;
     }
 
-    const result = await ImagePicker.launchCameraAsync ({
-      quality: 1,
-    });
+    const result = await ImagePicker.launchCameraAsync({quality: 1});
 
     if (!result.canceled) {
-      setImages (prevImages => [...prevImages, result.assets[0].uri]);
-
-      // Store captured image for uploading
-      setSelectedFiles (prevFiles => [...prevFiles, result.assets[0]]);
+      setImages(prevImages => [...prevImages, result.assets[0].uri]);
+      setSelectedFiles(prevFiles => [...prevFiles, result.assets[0]]);
     }
 
-    setModalVisible (false);
+    setModalVisible(false);
   };
 
   const uploadPhoto = async () => {
     if (selectedFiles.length === 0) {
-      Alert.alert (
+      Alert.alert(
         'No image selected',
         'Please select an image before uploading.'
       );
       return;
     }
+    setLoading(true)
 
-    const formData = new FormData ();
+    const formData = new FormData();
 
     for (const file of selectedFiles) {
-      const base64Uri = file.uri; // This is a base64 string
-      const fileType = mime.getType (base64Uri) || 'image/jpeg';
+      const base64Uri = file.uri;
+      const fileType = mime.getType(base64Uri) || 'image/jpeg';
 
-      // Convert base64 to Blob
-      const response = await fetch (base64Uri);
-      const blob = await response.blob ();
-
-      formData.append ('photos', {
-        uri: base64Uri, // Use the file.uri, but converted to a blob
-        name: `photo_${Date.now ()}.${mime.getExtension (fileType) || 'jpg'}`,
+      formData.append('photos', {
+        uri: base64Uri,
+        name: `photo_${Date.now()}.${mime.getExtension(fileType) || 'jpg'}`,
         type: fileType,
       });
     }
 
-    console.log ('FormData before sending:', formData);
-
-    console.log ('Uploading FormData:', formData);
-
     try {
-      const res = await uploadPhotos (formData);
+      const res = await uploadPhotos(formData);
       const data = {images: res.data.paths, message: message};
-      console.log ('Upload response:', res,data);
-      const res2 = await workImagesPost({images: res.data.paths, message: message});
-      Alert.alert ('Upload Successful', 'Your images have been uploaded.');
+      await workImagesPost(data);
+      Alert.alert('Upload Successful', 'Your images have been uploaded.');
+      setImages([]);
+      setSelectedFiles([]);
+      setMessage('');
     } catch (error) {
-      console.error ('Upload failed:', error);
-      Alert.alert ('Upload failed', 'Check console for details.');
+      console.error('Upload failed:', error);
+      Alert.alert('Upload failed', 'Check console for details.');
     }
+    setLoading(false)
+  };
+
+  const removeImage = indexToRemove => {
+    setImages(images.filter((_, index) => index !== indexToRemove));
+    setSelectedFiles(selectedFiles.filter((_, index) => index !== indexToRemove));
+  };
+
+  const removeAllImages = () => {
+    setImages([]);
+    setSelectedFiles([]);
   };
 
   return (
@@ -142,51 +141,75 @@ const WorkImages = ({navigation}) => {
       <Header
         title="Work Images"
         rightComponent={
-          <TouchableOpacity onPress={() => setModalVisible (true)}>
-            <Ionicons name="add-circle-outline" size={30} color="white" />
-          </TouchableOpacity>
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <TouchableOpacity onPress={removeAllImages} style={{marginRight: 15}}>
+              <Ionicons name="trash-bin-outline" size={24} color="white" />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setModalVisible(true)}>
+              <Ionicons name="add-circle-outline" size={30} color="white" />
+            </TouchableOpacity>
+          </View>
         }
       />
-
+      {loading&&<Loader message="Uploading Images"/>}
       {/* Selected Images */}
-      {/* <FlatList
-        horizontal
-        data={images}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item }) => (
-          <Image source={{ uri: item }} style={styles.imagePreview} />
-        )}
-        style={styles.imageContainer}
-      /> */}
-     <ScrollView contentContainerStyle={styles.imageScroll}>
-     <View style={styles.imageContainer}>
-        {images.map ((img, index) => (
-          <Image key={index} source={{uri: img}} style={styles.imagePreview} />
-        ))}
-      </View>
-     </ScrollView>
-
       <KeyboardAvoidingView
-        style={styles.container}
+        style={{flex: 1}}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={10} // You can adjust this based on header height
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+        enabled
       >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={{flex: 1}}>
-            {/* Message Input */}
-            <View style={styles.inputContainer}>
-              <TextInput
-                style={styles.input}
-                placeholder="Type a message..."
-                value={message}
-                onChangeText={setMessage}
-              />
-              <TouchableOpacity onPress={uploadPhoto} style={styles.sendButton}>
-                <Ionicons name="send" size={24} color="#FFF" />
-              </TouchableOpacity>
+        <View style={{flex: 1}}>
+          <ScrollView 
+            contentContainerStyle={[
+              styles.imageScroll,
+              Platform.OS === 'ios' && {flexGrow: 1}
+            ]}
+            keyboardShouldPersistTaps="handled"
+          >
+            <View style={styles.imageContainer}>
+              {!images||images.length==0&&<TouchableOpacity
+              onPress={() => setModalVisible(true)}
+                style={{
+                  height: '100%',
+                  width: '100%',
+                  flex: 1,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+              >
+                <LottieView style={{height: 150, width: 150}} source={uploadImage} autoPlay loop/>
+                <Text>Upload Images</Text>
+              </TouchableOpacity>}
+              {images.map((img, index) => (
+                <View key={index} style={styles.imageWrapper}>
+                  <Image source={{uri: img}} style={styles.imagePreview} />
+                  <TouchableOpacity
+                    style={styles.removeIcon}
+                    onPress={() => removeImage(index)}
+                  >
+                    <Ionicons name="close-circle" size={20} color="red" />
+                  </TouchableOpacity>
+                </View>
+              ))}
             </View>
+          </ScrollView>
+
+          <View style={[
+            styles.inputContainer,
+            Platform.OS === 'ios' && {paddingBottom: 0}
+          ]}>
+            <TextInput
+              style={styles.input}
+              placeholder="Type a message..."
+              value={message}
+              onChangeText={setMessage}
+            />
+            <TouchableOpacity onPress={uploadPhoto} style={styles.sendButton}>
+              <Ionicons name="send" size={24} color="#FFF" />
+            </TouchableOpacity>
           </View>
-        </TouchableWithoutFeedback>
+        </View>
       </KeyboardAvoidingView>
 
       {/* Modal for Image Selection */}
@@ -203,43 +226,48 @@ const WorkImages = ({navigation}) => {
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.cancelButton}
-              onPress={() => setModalVisible (false)}
+              onPress={() => setModalVisible(false)}
             >
               <Text style={styles.cancelText}>Cancel</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
-
     </View>
   );
 };
 
-const styles = StyleSheet.create ({
-  container: {flex: 1, backgroundColor: '#F5F5F5', height: screenHeight},
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    padding: 15,
-    backgroundColor: '#FFF',
-    elevation: 5,
-    flex:1
-  },
+const styles = StyleSheet.create({
+  container: {flex: 1, backgroundColor: '#F5F5F5'},
   imageScroll: {
     padding: 10,
-    paddingBottom: 80,
-
+    paddingBottom: Platform.OS === 'ios' ? 80 : 80,
   },
-  
   imageContainer: {
-    marginVertical:20,
-    width: "100%",
+    marginVertical: 20,
+    width: '100%',
     flex: 1,
     flexWrap: 'wrap',
-    flexDirection:"row",
-    justifyContent:"space-evenly",
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
   },
-  imagePreview: {width: '30%', height: 80, margin: 5, borderRadius: 10},
+  imageWrapper: {
+    position: 'relative',
+    margin: 5,
+  },
+  imagePreview: {
+    width: screenWidth * 0.28,
+    height: 80,
+    borderRadius: 10,
+  },
+  removeIcon: {
+    position: 'absolute',
+    top: -8,
+    right: -8,
+    zIndex: 1,
+    backgroundColor: 'white',
+    borderRadius: 10,
+  },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -248,7 +276,10 @@ const styles = StyleSheet.create ({
     borderTopWidth: 1,
     borderColor: '#DDD',
     position: 'absolute',
-    bottom: 5,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1,
   },
   input: {
     flex: 1,

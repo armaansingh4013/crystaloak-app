@@ -32,7 +32,6 @@ export const attendanceStatus = async (userId) => {
 
 export const attendanceCheckIn = async (dataInput) => {
     try {
-        console.log(dataInput)
       const token = await getToken()
       const response = await fetch(API.attendanceCheckIn, {
         method: 'POST',
@@ -102,7 +101,6 @@ export const attendanceCheckIn = async (dataInput) => {
 // export default attendanceStatus,attendanceCheckIn,attendanceCheckOut};
 export const workImagesPost = async (data) => {
   try {
-    console.log(data)
     const token = await getToken()
     const response = await fetch(API.postWorkImages, {
       method: 'POST',

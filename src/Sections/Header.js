@@ -1,16 +1,22 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, StatusBar, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import color from "../styles/globals"
+
 const Header = ({ title, onBackPress, rightComponent }) => {
   return (
+    <>
+    <StatusBar
+      backgroundColor={color.primary}
+      barStyle="light-content"
+    />
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
+      <View style={[styles.container, Platform.OS === 'android' && { marginTop: StatusBar.currentHeight }]}>
         {/* Left */}
         <View style={styles.side}>
           {onBackPress && (
             <TouchableOpacity onPress={onBackPress}>
-              <Ionicons name="arrow-back" size={24} color="black" />
+              <Ionicons name="arrow-back" size={24} color="white" />
             </TouchableOpacity>
           )}
         </View>
@@ -25,7 +31,7 @@ const Header = ({ title, onBackPress, rightComponent }) => {
           {rightComponent && rightComponent}
         </View>
       </View>
-    </SafeAreaView>
+    </SafeAreaView></>
   );
 };
 
@@ -38,8 +44,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
   },
   side: {
     width: 50,
@@ -53,7 +57,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: '600',
-    color:"white"
+    color: "white"
   },
 });
 
