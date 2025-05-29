@@ -9,6 +9,7 @@ import {
   Modal,
   FlatList,
   TextInput,
+  Platform,
 } from 'react-native';
 import Header from '../Sections/Header';
 import color from '../styles/globals';
@@ -28,6 +29,8 @@ const PaySlipSelection = ({ navigation }) => {
   const [endDate, setEndDate] = useState(new Date());
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+  const [showStartDateModal, setShowStartDateModal] = useState(false);
+  const [showEndDateModal, setShowEndDateModal] = useState(false);
 
   useEffect(() => {
     fetchEmployees();
@@ -106,6 +109,59 @@ const PaySlipSelection = ({ navigation }) => {
     </TouchableOpacity>
   );
 
+  const renderDatePickerModal = (isStart) => {
+    if (Platform.OS !== 'ios') return null;
+
+    return (
+      <Modal
+        visible={isStart ? showStartDateModal : showEndDateModal}
+        transparent={true}
+        animationType="slide"
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>
+                {isStart ? 'Select Start Date' : 'Select End Date'}
+              </Text>
+            </View>
+            <DateTimePicker
+              value={isStart ? startDate : endDate}
+              mode="date"
+              display="spinner"
+              onChange={(event, selectedDate) => {
+                if (selectedDate) {
+                  if (isStart) {
+                    setStartDate(selectedDate);
+                  } else {
+                    setEndDate(selectedDate);
+                  }
+                }
+              }}
+              style={styles.iosDatePicker}
+            />
+            <View style={styles.modalFooter}>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={() => {
+                  if (isStart) {
+                    setShowStartDateModal(false);
+                    setShowStartDatePicker(false);
+                  } else {
+                    setShowEndDateModal(false);
+                    setShowEndDatePicker(false);
+                  }
+                }}
+              >
+                <Text style={styles.modalButtonText}>Done</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+    );
+  };
+
   return (
     <View style={styles.container}>
       <Header title="Pay Slip Generation" onBackPress={() => navigation.goBack()}/>
@@ -140,49 +196,60 @@ const PaySlipSelection = ({ navigation }) => {
           <Text style={styles.label}>Start Date</Text>
           <TouchableOpacity
             style={styles.dateButton}
-            onPress={() => setShowStartDatePicker(true)}
+            onPress={() => {
+              if (Platform.OS === 'ios') {
+                setShowStartDateModal(true);
+              } else {
+                setShowStartDatePicker(true);
+              }
+            }}
           >
             <Text style={styles.dateButtonText}>{formatDate(startDate)}</Text>
             <Ionicons name="calendar" size={20} color="#666" />
           </TouchableOpacity>
-          {/* Date Pickers */}
-      {showStartDatePicker && (
-        <DateTimePicker
-          value={startDate}
-          mode="date"
-          display="default"
-          onChange={(event, selectedDate) => {
-            setShowStartDatePicker(false);
-            if (selectedDate) {
-              setStartDate(selectedDate);
-            }
-          }}
-        />
-      )}
+          {Platform.OS === 'android' && showStartDatePicker && (
+            <DateTimePicker
+              value={startDate}
+              mode="date"
+              display="default"
+              onChange={(event, selectedDate) => {
+                setShowStartDatePicker(false);
+                if (selectedDate) {
+                  setStartDate(selectedDate);
+                }
+              }}
+            />
+          )}
         </View>
 
         <View style={styles.section}>
           <Text style={styles.label}>End Date</Text>
           <TouchableOpacity
             style={styles.dateButton}
-            onPress={() => setShowEndDatePicker(true)}
+            onPress={() => {
+              if (Platform.OS === 'ios') {
+                setShowEndDateModal(true);
+              } else {
+                setShowEndDatePicker(true);
+              }
+            }}
           >
             <Text style={styles.dateButtonText}>{formatDate(endDate)}</Text>
             <Ionicons name="calendar" size={20} color="#666" />
           </TouchableOpacity>
-          {showEndDatePicker && (
-        <DateTimePicker
-          value={endDate}
-          mode="date"
-          display="default"
-          onChange={(event, selectedDate) => {
-            setShowEndDatePicker(false);
-            if (selectedDate) {
-              setEndDate(selectedDate);
-            }
-          }}
-        />
-      )}
+          {Platform.OS === 'android' && showEndDatePicker && (
+            <DateTimePicker
+              value={endDate}
+              mode="date"
+              display="default"
+              onChange={(event, selectedDate) => {
+                setShowEndDatePicker(false);
+                if (selectedDate) {
+                  setEndDate(selectedDate);
+                }
+              }}
+            />
+          )}
         </View>
 
         <TouchableOpacity style={styles.button} onPress={handleContinue}>
@@ -270,9 +337,8 @@ const PaySlipSelection = ({ navigation }) => {
         </View>
       </Modal>
 
-      
-
-     
+      {renderDatePickerModal(true)}
+      {renderDatePickerModal(false)}
     </View>
   );
 };
@@ -337,27 +403,46 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: 'flex-end',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    width: '90%',
-    maxHeight: '80%',
-    padding: 20,
+    backgroundColor: 'white',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingBottom: Platform.OS === 'ios' ? 20 : 0,
   },
   modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
     alignItems: 'center',
-    marginBottom: 15,
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '600',
     color: '#333',
+  },
+  modalFooter: {
+    padding: 15,
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
+    alignItems: 'flex-end',
+  },
+  modalButton: {
+    backgroundColor: color.primary,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  modalButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  iosDatePicker: {
+    height: 200,
+    width: '100%',
   },
   searchContainer: {
     flexDirection: 'row',

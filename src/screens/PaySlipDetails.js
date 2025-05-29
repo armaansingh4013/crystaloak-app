@@ -13,13 +13,20 @@ import Header from '../Sections/Header';
 import color from '../styles/globals';
 
 const PaySlipDetails = ({ route, navigation }) => {
-  const { selectedEmployee, payType ,startDate,endDate} = route.params;
+  const { selectedEmployee, payType, startDate, endDate } = route.params;
   const [editedAddress, setEditedAddress] = useState(selectedEmployee.address);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [companyAddress, setCompanyAddress] = useState("121 MIDHURST GARDENS, UXBRIDGE, UB10 9DP");
+  const [showCompanyAddressModal, setShowCompanyAddressModal] = useState(false);
 
   const handleSaveAddress = () => {
     setShowEditModal(false);
     Alert.alert('Success', 'Address updated for pay slip');
+  };
+
+  const handleSaveCompanyAddress = () => {
+    setShowCompanyAddressModal(false);
+    Alert.alert('Success', 'Company address updated successfully');
   };
 
   const handleGeneratePaySlip = () => {
@@ -30,8 +37,9 @@ const PaySlipDetails = ({ route, navigation }) => {
       endDate,
       employeeData: {
         ...selectedEmployee,
-        address: editedAddress, // Use the edited address
+        address: editedAddress,
       },
+      companyAddress: companyAddress,
     });
   };
 
@@ -50,11 +58,28 @@ const PaySlipDetails = ({ route, navigation }) => {
           </View>
         </View>
 
+        <View style={styles.section}>
+          <Text style={styles.label}>Company Information</Text>
+          <View style={styles.infoContainer}>
+            <Text style={styles.infoText}>Company Name: Crystal Oak Constructions Ltd</Text>
+            <Text style={styles.infoText}>Address: {companyAddress}</Text>
+            <Text style={styles.infoText}>Tel: +44 1895854444 | Mobile: +44 7970054444</Text>
+            <Text style={styles.infoText}>Email: crystaloakwork@outlook.com</Text>
+          </View>
+        </View>
+
         <TouchableOpacity
           style={styles.editButton}
           onPress={() => setShowEditModal(true)}
         >
-          <Text style={styles.editButtonText}>Edit Address for Pay Slip</Text>
+          <Text style={styles.editButtonText}>Edit Employee Address</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.editButton, { marginTop: 10 }]}
+          onPress={() => setShowCompanyAddressModal(true)}
+        >
+          <Text style={styles.editButtonText}>Edit Company Address</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -64,6 +89,7 @@ const PaySlipDetails = ({ route, navigation }) => {
           <Text style={styles.generateButtonText}>Generate Pay Slip</Text>
         </TouchableOpacity>
 
+        {/* Employee Address Edit Modal */}
         <Modal
           visible={showEditModal}
           transparent={true}
@@ -71,20 +97,20 @@ const PaySlipDetails = ({ route, navigation }) => {
         >
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Edit Address for Pay Slip</Text>
+              <Text style={styles.modalTitle}>Edit Employee Address</Text>
               <TextInput
                 style={styles.addressInput}
                 value={editedAddress}
                 onChangeText={setEditedAddress}
                 multiline
                 numberOfLines={4}
-                placeholder="Enter address for pay slip"
+                placeholder="Enter employee address"
               />
               <View style={styles.modalButtons}>
                 <TouchableOpacity
                   style={[styles.modalButton, styles.cancelButton]}
                   onPress={() => {
-                    setEditedAddress(selectedEmployee.address); // Reset to original address
+                    setEditedAddress(selectedEmployee.address);
                     setShowEditModal(false);
                   }}
                 >
@@ -93,6 +119,41 @@ const PaySlipDetails = ({ route, navigation }) => {
                 <TouchableOpacity
                   style={[styles.modalButton, styles.saveButton]}
                   onPress={handleSaveAddress}
+                >
+                  <Text style={styles.modalButtonText}>Save</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+
+        {/* Company Address Edit Modal */}
+        <Modal
+          visible={showCompanyAddressModal}
+          transparent={true}
+          animationType="slide"
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Edit Company Address</Text>
+              <TextInput
+                style={styles.addressInput}
+                value={companyAddress}
+                onChangeText={setCompanyAddress}
+                multiline
+                numberOfLines={4}
+                placeholder="Enter company address"
+              />
+              <View style={styles.modalButtons}>
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.cancelButton]}
+                  onPress={() => setShowCompanyAddressModal(false)}
+                >
+                  <Text style={styles.modalButtonText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.saveButton]}
+                  onPress={handleSaveCompanyAddress}
                 >
                   <Text style={styles.modalButtonText}>Save</Text>
                 </TouchableOpacity>

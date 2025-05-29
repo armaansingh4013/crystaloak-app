@@ -8,19 +8,18 @@ import {
   StyleSheet,
   Platform,
   Dimensions,
-  PermissionsAndroid,
   Modal,
   Linking,
   FlatList,
   Share,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import * as Contacts from 'expo-contacts';
 import Header from '../Sections/Header';
 import color from "../styles/globals"
 import { addEmployee, updateEmployee } from '../controller/admin/addEmployee';
 import Loader from "../Sections/Loader"
 import Toast from 'react-native-toast-message';
-import Contacts from 'react-native-contacts';
 
 const screenHeight = Dimensions.get("window").height;
 
@@ -67,35 +66,26 @@ const AdminAddEmployee = ({ route, navigation }) => {
 
   const loadContacts = async () => {
     try {
-      if (Platform.OS === 'android') {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.READ_CONTACTS,
-          {
-            title: 'Contacts Permission',
-            message: 'This app needs access to your contacts to select employee details.',
-            buttonNeutral: 'Ask Me Later',
-            buttonNegative: 'Cancel',
-            buttonPositive: 'OK',
-          }
-        );
-
-        if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-          Toast.show({
-            type: 'error',
-            text1: 'Permission denied',
-            text2: 'Please grant contact permission in Settings to use this feature',
-            position: 'top',
-          });
-          return;
-        }
+      const { status } = await Contacts.requestPermissionsAsync();
+      if (status !== 'granted') {
+        Toast.show({
+          type: 'error',
+          text1: 'Permission denied',
+          text2: 'Please grant contact permission in Settings to use this feature',
+          position: 'top',
+        });
+        return;
       }
 
-      // Add a small delay to ensure permissions are properly granted
-      await new Promise(resolve => setTimeout(resolve, 500));
+      const { data } = await Contacts.getContactsAsync({
+        fields: [
+          Contacts.Fields.Name,
+          Contacts.Fields.PhoneNumbers,
+          Contacts.Fields.Emails,
+        ],
+      });
 
-      const allContacts = await Contacts.getAll();
-      
-      if (!allContacts || allContacts.length === 0) {
+      if (!data || data.length === 0) {
         Toast.show({
           type: 'error',
           text1: 'No Contacts',
@@ -106,11 +96,11 @@ const AdminAddEmployee = ({ route, navigation }) => {
       }
 
       // Sort contacts by name
-      const sortedContacts = allContacts
-        .filter(contact => contact.givenName || contact.familyName) // Filter out contacts without names
+      const sortedContacts = data
+        .filter(contact => contact.name) // Filter out contacts without names
         .sort((a, b) => {
-          const nameA = (a.givenName + ' ' + a.familyName).trim();
-          const nameB = (b.givenName + ' ' + b.familyName).trim();
+          const nameA = (a.name || '').trim();
+          const nameB = (b.name || '').trim();
           return nameA.localeCompare(nameB);
         });
 
@@ -140,16 +130,16 @@ const AdminAddEmployee = ({ route, navigation }) => {
   const handleContactSelect = (contact) => {
     const updatedForm = { ...form };
     
-    if (contact.givenName || contact.familyName) {
-      updatedForm.name = `${contact.givenName || ''} ${contact.familyName || ''}`.trim();
+    if (contact.name) {
+      updatedForm.name = contact.name;
     }
     
     if (contact.phoneNumbers && contact.phoneNumbers.length > 0) {
       updatedForm.phone = contact.phoneNumbers[0].number;
     }
     
-    if (contact.emailAddresses && contact.emailAddresses.length > 0) {
-      updatedForm.email = contact.emailAddresses[0].email;
+    if (contact.emails && contact.emails.length > 0) {
+      updatedForm.email = contact.emails[0].email;
     }
     
     setForm(updatedForm);
@@ -163,7 +153,7 @@ const AdminAddEmployee = ({ route, navigation }) => {
     >
       <View style={styles.contactInfo}>
         <Text style={styles.contactName}>
-          {`${item.givenName || ''} ${item.familyName || ''}`.trim() || 'No Name'}
+          {item.name || 'No Name'}
         </Text>
         {item.phoneNumbers && item.phoneNumbers.length > 0 && (
           <Text style={styles.contactPhone}>{item.phoneNumbers[0].number}</Text>

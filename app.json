@@ -25,7 +25,15 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.armaansingh4886.crystaloakapp",
-      "permissions": ["READ_CONTACTS"]
+      "permissions": [
+        "READ_CONTACTS",
+        "CAMERA",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
+      ],
+      "ar": {
+        "enabled": true
+      }
     },
     "web": {
       "favicon": "./assets/logo.png"
@@ -36,7 +44,6 @@
       }
     },
     "plugins": [
-      "react-native-video",
       [
         "react-native-permissions",
         {

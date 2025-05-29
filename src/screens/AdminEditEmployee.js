@@ -871,6 +871,10 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     backgroundColor: '#e0e0e0',
+    padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginTop: 20,
   },
   modalButtonText: {
     color: '#fff',

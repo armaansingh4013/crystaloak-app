@@ -37,18 +37,26 @@ const StackNavigator = () => {
 
   useEffect(() => {
     const checkAuth = async () => {
+      console.log('Starting auth check...');
       try {
         const token = await getToken();
+        console.log('Token retrieved:', !!token);
         const userData = await getProfile();
+        console.log('User data retrieved:', userData?.data?.role);
+        
         if (token) {
           if (userData?.data.role === 'admin') {
+            console.log('Setting route to AdminNavigator');
             setInitialRoute('AdminNavigator');
-          } else if (! userData.data.documents) {
+          } else if (!userData.data.documents) {
+            console.log('Setting route to DocumentUpload');
             setInitialRoute('DocumentUpload');
-          }  else {
+          } else {
+            console.log('Setting route to TabNavigator');
             setInitialRoute('TabNavigator');
           }
         } else {
+          console.log('No token found, setting route to Login');
           setInitialRoute('Login');
         }
       } catch (error) {
@@ -60,7 +68,10 @@ const StackNavigator = () => {
     checkAuth();
   }, [user]);
 
+  console.log('Current initialRoute:', initialRoute);
+
   if (!initialRoute) {
+    console.log('No initial route set, returning null');
     return null;
   }
 

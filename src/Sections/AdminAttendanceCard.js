@@ -32,7 +32,7 @@ const AdminAttendanceCard = ({item}) => {
 
   const handleImages = async () => {
     if (item.workImages && item.workImages.length > 0)
-      navigation.navigate ('workimagespreview', {
+      navigation.navigate ('WorkImagesPreview', {
         items: item.workImages,
       });
   };

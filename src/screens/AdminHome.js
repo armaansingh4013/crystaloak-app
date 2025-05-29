@@ -46,7 +46,7 @@ const AdminHome = () => {
   };
 
   const handleImages = async (items) => {
-    navigation.navigate("workimagespreview", {
+    navigation.navigate("WorkImagesPreview", {
       items: items
     });
   };

@@ -1,6 +1,6 @@
-export const base_url = 'http://192.168.1.12:5001';
+// export const base_url = 'http://192.168.1.39:5001';
 // export const base_url = 'http://172.20.10.3:5001';
-// export const base_url = 'https://crystaloak-node.onrender.com';
+export const base_url = 'https://crystaloak-node.onrender.com';
 
 // const base_url =" https://759f-2401-4900-1c6e-a851-8558-116-5c86-bf75.ngrok-free.app"
 const API = {

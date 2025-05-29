@@ -27,11 +27,9 @@ const ShiftScreen = () => {
   const [showStartTimePicker, setShowStartTimePicker] = useState(false);
   const [showEndTimePicker, setShowEndTimePicker] = useState(false);
   const [newShift, setNewShift] = useState({
-    name: '',
     startTime: '',
     endTime: '',
     timeZone: 'Asia/Kolkata',
-    description: '',
     isDefault: false,
   });
   const navigation = useNavigation();
@@ -61,11 +59,9 @@ const ShiftScreen = () => {
         Alert.alert('Success', 'Shift added successfully');
         setIsModalVisible(false);
         setNewShift({
-          name: '',
           startTime: '',
           endTime: '',
           timeZone: 'Asia/Kolkata',
-          description: '',
           isDefault: false,
         });
         loadShifts();
@@ -104,7 +100,6 @@ const ShiftScreen = () => {
   const renderShiftItem = ({ item }) => (
     <View style={styles.shiftCard}>
       <View style={styles.shiftHeader}>
-        <Text style={styles.shiftName}>{item.name}</Text>
         {item.isDefault && (
           <View style={styles.defaultBadge}>
             <Text style={styles.defaultText}>Default</Text>
@@ -114,7 +109,6 @@ const ShiftScreen = () => {
       <Text style={styles.shiftTime}>
         {item.startTime} - {item.endTime}
       </Text>
-      <Text style={styles.shiftDescription}>{item.description}</Text>
       <Text style={styles.shiftDescription}>{formatDate(item.startDate)} - {item.endDate?formatDate(item.endDate):"Till Date"}</Text>
       <Text style={styles.shiftTimezone}>Timezone: {item.timeZone}</Text>
     </View>
@@ -140,14 +134,6 @@ const ShiftScreen = () => {
           </View>
 
           <ScrollView style={styles.formContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder="Shift Name"
-              placeholderTextColor="#999"
-              value={newShift.name}
-              onChangeText={(text) => setNewShift({ ...newShift, name: text })}
-            />
-            
             <TouchableOpacity
               style={styles.timeInput}
               onPress={() => setShowStartTimePicker(true)}
@@ -185,25 +171,6 @@ const ShiftScreen = () => {
           onChange={onEndTimeChange}
         />
       )}
-            <TextInput
-              style={styles.input}
-              placeholder="Description"
-              placeholderTextColor="#999"
-              value={newShift.description}
-              onChangeText={(text) => setNewShift({ ...newShift, description: text })}
-              multiline
-            />
-            {/* <TouchableOpacity
-              style={[
-                styles.checkbox,
-                newShift.isDefault && styles.checkboxSelected,
-              ]}
-              onPress={() =>
-                setNewShift({ ...newShift, isDefault: !newShift.isDefault })
-              }
-            >
-              <Text style={styles.checkboxText}>Set as Default Shift</Text>
-            </TouchableOpacity> */}
           </ScrollView>
 
           <TouchableOpacity

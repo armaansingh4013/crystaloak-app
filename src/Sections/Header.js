@@ -11,7 +11,7 @@ const Header = ({ title, onBackPress, rightComponent }) => {
       barStyle="light-content"
     />
     <SafeAreaView style={styles.safeArea}>
-      <View style={[styles.container, Platform.OS === 'android' && { paddingTop: StatusBar.currentHeight }]}>
+      <View style={[styles.container, Platform.OS === 'android' && { marginTop: StatusBar.currentHeight }]}>
         {/* Left */}
         <View style={styles.side}>
           {onBackPress && (

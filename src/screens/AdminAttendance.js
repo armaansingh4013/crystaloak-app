@@ -7,6 +7,8 @@ import {
   TextInput,
   TouchableOpacity,
   Image,
+  Platform,
+  Modal,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import AttendanceCard from '../Sections/AttendanceCard';
@@ -19,29 +21,76 @@ import color from "../styles/globals"
 import Loader from '../Sections/Loader';
 import holiday from "../assets/holiday.json"
 const AdminAttendance = () => {
-  const [date, setDate] = useState (new Date ());
-  const [showPicker, setShowPicker] = useState (false);
-  const [totalPresent, setTotalPresent] = useState (0); // Placeholder value
-  const [data, setData] = useState ([]);
-  const [loading,setLoading] = useState(false)
-  useEffect (() => {
-    fetchData ();
+  const [date, setDate] = useState(new Date());
+  const [showPicker, setShowPicker] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [totalPresent, setTotalPresent] = useState(0);
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    fetchData();
   }, []);
+
   const fetchData = async () => {
-    setLoading(true)
-    const res = await getDateAttendance (date);
+    setLoading(true);
+    const res = await getDateAttendance(date);
     
     if (res.success) {
-      setData (res.data);
+      setData(res.data);
     }
-    setLoading(false)
+    setLoading(false);
   };
 
   const onDateChange = (event, selectedDate) => {
-    setShowPicker (false);
-    if (selectedDate) {
-      setDate (selectedDate);
+    if (Platform.OS === 'ios') {
+      if (selectedDate) {
+        setDate(selectedDate);
+      }
+    } else {
+      setShowPicker(false);
+      if (selectedDate) {
+        setDate(selectedDate);
+      }
     }
+  };
+
+  const renderDatePickerModal = () => {
+    if (Platform.OS !== 'ios') return null;
+
+    return (
+      <Modal
+        visible={showModal}
+        transparent={true}
+        animationType="slide"
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Select Date</Text>
+            </View>
+            <DateTimePicker
+              value={date}
+              mode="date"
+              display="spinner"
+              onChange={onDateChange}
+              style={styles.iosDatePicker}
+            />
+            <View style={styles.modalFooter}>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={() => {
+                  setShowModal(false);
+                  setShowPicker(false);
+                }}
+              >
+                <Text style={styles.modalButtonText}>Done</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+    );
   };
 
   return (
@@ -53,25 +102,31 @@ const AdminAttendance = () => {
         <View style={styles.dateContainer}>
           <Text>Date:</Text>
           <TouchableOpacity
-            onPress={() => setShowPicker (true)}
+            onPress={() => {
+              if (Platform.OS === 'ios') {
+                setShowModal(true);
+              } else {
+                setShowPicker(true);
+              }
+            }}
             style={styles.dateInput}
           >
-            <Text>{date.toDateString ()}</Text>
+            <Text>{date.toDateString()}</Text>
           </TouchableOpacity>
-          {showPicker &&
+          {Platform.OS === 'android' && showPicker && (
             <DateTimePicker
               value={date}
               mode="date"
               display="default"
               onChange={onDateChange}
-            />}
+            />
+          )}
         </View>
 
         <View style={styles.totalPresentContainer}>
           <Text>
             Total Present: {data.attendance ? data.attendance.length : 0}
           </Text>
-
         </View>
 
         <TouchableOpacity
@@ -84,40 +139,43 @@ const AdminAttendance = () => {
           }}
         >
           <Text>GET</Text>
-
         </TouchableOpacity>
       </View>
-      {data.isHoliday?<View style={{flex:1,justifyContent:"center",alignItems:"center"}}>
-            
+
+      {renderDatePickerModal()}
+
+      {data.isHoliday ? (
+        <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
           <LottieView style={{height: 150, width: 150}} source={holiday} autoPlay loop/>
-<Text style={{fontSize:20,fontWeight:"bold"}}>There was holiday on this day</Text>
-          </View>:<>
-      {!data.attendance ||
-        (data.attendance.length == 0 &&
-          <View
-            style={{
+          <Text style={{fontSize: 20, fontWeight: "bold"}}>There was holiday on this day</Text>
+        </View>
+      ) : (
+        <>
+          {!data.attendance || data.attendance.length == 0 ? (
+            <View style={{
               height: '100%',
               width: '100%',
               flex: 1,
               justifyContent: 'center',
               alignItems: 'center',
-            }}
-          >
-            <LottieView style={{height: 150, width: 150}} source={noAttendance} autoPlay loop/>
-            <Text>No attendance for the day</Text>
-          </View>)}
-      {/* Attendance List */}
-      {data.attendance &&
-        <FlatList
-          data={data.attendance}
-          keyExtractor={item => item.employeeCode}
-          renderItem={({item}) => <AdminAttendanceCard item={item} />}
-        />}</>}
+            }}>
+              <LottieView style={{height: 150, width: 150}} source={noAttendance} autoPlay loop/>
+              <Text>No attendance for the day</Text>
+            </View>
+          ) : (
+            <FlatList
+              data={data.attendance}
+              keyExtractor={item => item.employeeCode}
+              renderItem={({item}) => <AdminAttendanceCard item={item} />}
+            />
+          )}
+        </>
+      )}
     </View>
   );
 };
 
-const styles = StyleSheet.create ({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F8F8F8',
@@ -152,6 +210,49 @@ const styles = StyleSheet.create ({
     width: 50,
     textAlign: 'center',
     marginLeft: 5,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingBottom: Platform.OS === 'ios' ? 20 : 0,
+  },
+  modalHeader: {
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
+  },
+  modalFooter: {
+    padding: 15,
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
+    alignItems: 'flex-end',
+  },
+  modalButton: {
+    backgroundColor: color.secondary,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  modalButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  iosDatePicker: {
+    height: 200,
+    width: '100%',
   },
 });
 

@@ -30,7 +30,7 @@ const DocumentUpload = ({ navigation }) => {
     },
   });
   const [selectedPhoto,setSelectedPhoto] = useState("")
-
+  const [getStarted,setGetStarted] = useState(false)
   const [loading, setLoading] = useState(false);
 
   const pickImage = async () => {
@@ -145,6 +145,28 @@ const DocumentUpload = ({ navigation }) => {
       { text: 'Cancel', style: 'cancel' },
     ]);
   };
+
+  if (!getStarted) {
+    return (
+      <View style={styles.welcomeContainer}>
+        <Image 
+          source={require('../assets/logo.png')} 
+          style={styles.logo}
+          resizeMode="contain"
+        />
+        <Text style={styles.welcomeTitle}>Crystaloak Construction</Text>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity 
+            style={styles.getStartedButton}
+            onPress={() => setGetStarted(true)}
+          >
+            <Text style={styles.getStartedText}>Get Started</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
@@ -319,6 +341,39 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   submitButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  welcomeContainer: {
+    flex: 1,
+    backgroundColor: color.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  logo: {
+    width: 200,
+    height: 200,
+  },
+  welcomeTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginTop: 20,
+  },
+  buttonContainer: {
+    position: 'absolute',
+    bottom: 50,
+    width: '100%',
+    paddingHorizontal: 20,
+  },
+  getStartedButton: {
+    backgroundColor: color.secondary,
+    padding: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  getStartedText: {
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
