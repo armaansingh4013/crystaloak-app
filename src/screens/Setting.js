@@ -1,4 +1,3 @@
-
 import React, { useContext, useEffect, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AuthContext } from '../components/AuthContext';
@@ -8,29 +7,56 @@ import { getUserData, storeUserData } from '../components/Storage';
 import getProfile from '../controller/profile';
 import { base_url } from '../api';
 import { useNavigation } from '@react-navigation/native';
+import Toast from 'react-native-toast-message';
+
 const Setting = () => {
   const { logout } = useContext(AuthContext);
 const [user,setUser] = useState()
 const navigation = useNavigation()
 useEffect(() => {
  const fetchUser =async()=>{
-  // let userData = await getUserData()
-  // if (!userData){
+  try {
     const res = await getProfile();
-    // storeUserData(res.data)
-    // userData = res.data
-  // }
- 
-  setUser(res.data)
+    if (res.success) {
+      setUser(res.data);
+    } else {
+      Toast.show({
+        type: 'error',
+        text1: 'Failed to fetch profile',
+        text2: res.message || 'Please try again',
+        position: 'top',
+      });
+    }
+  } catch (error) {
+    Toast.show({
+      type: 'error',
+      text1: 'Failed to fetch profile',
+      text2: 'Please try again',
+      position: 'top',
+    });
+  }
  }
  fetchUser()
 }, [])
 
 const handleLogout = async () => {
-    await logout();
-
-        navigation.replace("Login")
-  };
+    try {
+      await logout();
+      Toast.show({
+        type: 'success',
+        text1: 'Logged out successfully',
+        position: 'top',
+      });
+      navigation.replace("Login");
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'Logout failed',
+        text2: 'Please try again',
+        position: 'top',
+      });
+    }
+};
 
   return (
     <View style={styles.container}>
@@ -47,13 +73,15 @@ const handleLogout = async () => {
       </View>
 
       {/* White Overlapping Card Section */}
+      
       <View style={styles.cardContainer}>
+        
         <ScrollView contentContainerStyle={styles.scrollContent}>
           {menuItems.map((item, index) => (
             <TouchableOpacity
               key={index}
               style={styles.cardItem}
-              onPress={item.title === 'Log out' ? handleLogout : () => {}}
+              onPress={item.title === 'Log out' ? handleLogout : () => {navigation.navigate(item.title)}}
             >
               <View style={styles.iconWrapper}>{item.icon}</View>
               <Text style={styles.cardText}>{item.title}</Text>
@@ -114,7 +142,7 @@ const styles = StyleSheet.create({
   cardContainer: {
     flex: 1,
     backgroundColor: '#fff',
-    marginTop: -80,
+    marginTop: -65,
     margin:20,
     borderRadius: 25,
     paddingTop: 30,

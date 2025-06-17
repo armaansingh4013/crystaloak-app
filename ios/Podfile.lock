@@ -10,7 +10,7 @@ PODS:
     - ExpoModulesCore
     - React-Core
   - EXJSONUtils (0.15.0)
-  - EXManifests (0.16.4):
+  - EXManifests (0.16.5):
     - ExpoModulesCore
   - Expo (53.0.5):
     - DoubleConversion
@@ -39,16 +39,16 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - expo-dev-client (5.1.7):
+  - expo-dev-client (5.1.8):
     - EXManifests
     - expo-dev-launcher
     - expo-dev-menu
     - expo-dev-menu-interface
     - EXUpdatesInterface
-  - expo-dev-launcher (5.1.10):
+  - expo-dev-launcher (5.1.11):
     - DoubleConversion
     - EXManifests
-    - expo-dev-launcher/Main (= 5.1.10)
+    - expo-dev-launcher/Main (= 5.1.11)
     - expo-dev-menu
     - expo-dev-menu-interface
     - ExpoModulesCore
@@ -78,7 +78,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - expo-dev-launcher/Main (5.1.10):
+  - expo-dev-launcher/Main (5.1.11):
     - DoubleConversion
     - EXManifests
     - expo-dev-launcher/Unsafe
@@ -111,7 +111,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - expo-dev-launcher/Unsafe (5.1.10):
+  - expo-dev-launcher/Unsafe (5.1.11):
     - DoubleConversion
     - EXManifests
     - expo-dev-menu
@@ -143,10 +143,10 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - expo-dev-menu (6.1.9):
+  - expo-dev-menu (6.1.10):
     - DoubleConversion
-    - expo-dev-menu/Main (= 6.1.9)
-    - expo-dev-menu/ReactNativeCompatibles (= 6.1.9)
+    - expo-dev-menu/Main (= 6.1.10)
+    - expo-dev-menu/ReactNativeCompatibles (= 6.1.10)
     - glog
     - hermes-engine
     - RCT-Folly (= 2024.11.18.00)
@@ -170,7 +170,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - Yoga
   - expo-dev-menu-interface (1.10.0)
-  - expo-dev-menu/Main (6.1.9):
+  - expo-dev-menu/Main (6.1.10):
     - DoubleConversion
     - EXManifests
     - expo-dev-menu-interface
@@ -200,7 +200,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - expo-dev-menu/ReactNativeCompatibles (6.1.9):
+  - expo-dev-menu/ReactNativeCompatibles (6.1.10):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -224,7 +224,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - expo-dev-menu/SafeAreaView (6.1.9):
+  - expo-dev-menu/SafeAreaView (6.1.10):
     - DoubleConversion
     - ExpoModulesCore
     - glog
@@ -249,7 +249,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - expo-dev-menu/Vendored (6.1.9):
+  - expo-dev-menu/Vendored (6.1.10):
     - DoubleConversion
     - expo-dev-menu/SafeAreaView
     - glog
@@ -280,6 +280,8 @@ PODS:
     - ExpoModulesCore
     - ZXingObjC/OneD
     - ZXingObjC/PDF417
+  - ExpoContacts (14.2.4):
+    - ExpoModulesCore
   - ExpoFileSystem (18.1.8):
     - ExpoModulesCore
   - ExpoFont (13.3.0):
@@ -288,7 +290,7 @@ PODS:
     - ExpoModulesCore
   - ExpoKeepAwake (14.1.4):
     - ExpoModulesCore
-  - ExpoLocation (18.1.4):
+  - ExpoLocation (18.1.5):
     - ExpoModulesCore
   - ExpoMediaLibrary (17.1.6):
     - ExpoModulesCore
@@ -1731,6 +1733,8 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
+  - react-native-html-to-pdf (0.12.0):
+    - React-Core
   - react-native-image-picker (8.2.0):
     - DoubleConversion
     - glog
@@ -2616,6 +2620,7 @@ DEPENDENCIES:
   - expo-dev-menu-interface (from `../node_modules/expo-dev-menu-interface/ios`)
   - ExpoAsset (from `../node_modules/expo-asset/ios`)
   - ExpoCamera (from `../node_modules/expo-camera/ios`)
+  - ExpoContacts (from `../node_modules/expo-contacts/ios`)
   - ExpoFileSystem (from `../node_modules/expo-file-system/ios`)
   - ExpoFont (from `../node_modules/expo-font/ios`)
   - ExpoImagePicker (from `../node_modules/expo-image-picker/ios`)
@@ -2667,6 +2672,7 @@ DEPENDENCIES:
   - React-microtasksnativemodule (from `../node_modules/react-native/ReactCommon/react/nativemodule/microtasks`)
   - react-native-contacts (from `../node_modules/react-native-contacts`)
   - react-native-date-picker (from `../node_modules/react-native-date-picker`)
+  - react-native-html-to-pdf (from `../node_modules/react-native-html-to-pdf`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-video (from `../node_modules/react-native-video`)
@@ -2749,6 +2755,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-asset/ios"
   ExpoCamera:
     :path: "../node_modules/expo-camera/ios"
+  ExpoContacts:
+    :path: "../node_modules/expo-contacts/ios"
   ExpoFileSystem:
     :path: "../node_modules/expo-file-system/ios"
   ExpoFont:
@@ -2848,6 +2856,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-contacts"
   react-native-date-picker:
     :path: "../node_modules/react-native-date-picker"
+  react-native-html-to-pdf:
+    :path: "../node_modules/react-native-html-to-pdf"
   react-native-image-picker:
     :path: "../node_modules/react-native-image-picker"
   react-native-safe-area-context:
@@ -2946,19 +2956,20 @@ SPEC CHECKSUMS:
   EXConstants: a1112af878fddfe6acc0399473ac56a07ced0f47
   EXImageLoader: 4d3d3284141f1a45006cc4d0844061c182daf7ee
   EXJSONUtils: 1d3e4590438c3ee593684186007028a14b3686cd
-  EXManifests: 030b94fb9b4ce7f3edd2f166842bbd4474f58e40
+  EXManifests: 951161dd9a63523c4eef0fa2a7476639a7ba230d
   Expo: ad4787f10326172e911554a04867649682efb4ce
-  expo-dev-client: 22a268e3eef2d06165328151bf87e2c065cffae6
-  expo-dev-launcher: d5912aa4c748f0b65686361e4245efe1bae48cef
-  expo-dev-menu: a112a3f93f629a077d278ffac3ebf1d1a3154c81
+  expo-dev-client: 1234efa151154678fa5545d0dbd453edda0e9402
+  expo-dev-launcher: c574c489cacbb67f8d3286dc7c3dbb57fc44de58
+  expo-dev-menu: 56d5bdee4af7361bcfb6a6ce42419befd81d45ef
   expo-dev-menu-interface: 609c35ae8b97479cdd4c9e23c8cf6adc44beea0e
   ExpoAsset: ecda157f3ef69824d04015fa796dcfbda2304f21
   ExpoCamera: 316809537daad6a5bd2c04b98e0589304beb5551
+  ExpoContacts: 3dd51c3c53017b4ca05f18e786d1eb1ace729ef3
   ExpoFileSystem: 47ccd351beaa608f80f82a6f13ac8b0524ef529f
   ExpoFont: db9293b9c4585e60e30602ea4d939ad9705fe963
   ExpoImagePicker: 0963da31800c906e01c03e25d7c849f16ebf02a2
   ExpoKeepAwake: bf0811570c8da182bfb879169437d4de298376e7
-  ExpoLocation: 073779bf6ed3928dfe42a8614dc6ee18197572d1
+  ExpoLocation: a319a1b2c00b82c29e8a24227e0f00d1e19662c5
   ExpoMediaLibrary: ef14f0390b06ddecca98118eb7332e92efe4765a
   ExpoModulesCore: 3ac17421302df62928fc99c133cf25bdbcf0b004
   ExpoPrint: b278f5d9ac844f4b1f65dd06183970602e09bc8b
@@ -3005,6 +3016,7 @@ SPEC CHECKSUMS:
   React-microtasksnativemodule: 054f34e9b82f02bd40f09cebd4083828b5b2beb6
   react-native-contacts: bee8a72e5f475c386813edb80d0c974ff82d4bf2
   react-native-date-picker: 20a29ebbc0f2692a57ed65a7e78e48869821ff33
+  react-native-html-to-pdf: 7a49e6c58ac5221bcc093027b195f4b214f27a9d
   react-native-image-picker: fba7ab3cefce56618bc646269f22f02df3fcc375
   react-native-safe-area-context: 562163222d999b79a51577eda2ea8ad2c32b4d06
   react-native-video: d3008e2a38594e55235ca2e116637928125d06b9

@@ -1,9 +1,14 @@
-import React from 'react';
-import StackNavigator from './src/navigation/StackNavigator';
+import React, { useState, useEffect, useCallback } from 'react';
 import { AuthProvider } from './src/components/AuthContext';
 import Toast from 'react-native-toast-message';
 import { View, Text } from 'react-native';
 import { LogBox } from 'react-native';
+import Loader from './src/components/Loader';
+import * as SplashScreen from 'expo-splash-screen';
+import StackNavigator from './src/controller/navigation/StackNavigator';
+
+// Prevent splash screen from auto-hiding
+SplashScreen.preventAutoHideAsync();
 
 // Ignore specific warnings if they're not relevant to your issue
 LogBox.ignoreLogs([
@@ -84,12 +89,40 @@ const toastConfig = {
 };
 
 export default function App() {
-  console.log('App component rendering'); // Add logging
+  const [appIsReady, setAppIsReady] = useState(false);
+
+  useEffect(() => {
+    async function prepare() {
+      try {
+        // Simulate initial loading time
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      } catch (e) {
+        console.warn(e);
+      } finally {
+        setAppIsReady(true);
+      }
+    }
+
+    prepare();
+  }, []);
+
+  const onLayoutRootView = useCallback(async () => {
+    if (appIsReady) {
+      await SplashScreen.hideAsync();
+    }
+  }, [appIsReady]);
+
+  if (!appIsReady) {
+    return null;
+  }
+
   return (
     <ErrorBoundary>
       <AuthProvider>
-        <StackNavigator/>
-        <Toast config={toastConfig} />
+        <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+          <StackNavigator/>
+          <Toast config={toastConfig} />
+        </View>
       </AuthProvider>
     </ErrorBoundary>
   );

@@ -1,6 +1,6 @@
-// export const base_url = 'http://192.168.1.39:5001';
+export const base_url = 'http://192.168.68.120:5001';
 // export const base_url = 'http://172.20.10.3:5001';
-export const base_url = 'https://crystaloak-node.onrender.com';
+// export const base_url = 'https://crystaloak-node.onrender.com';
 
 // const base_url =" https://759f-2401-4900-1c6e-a851-8558-116-5c86-bf75.ngrok-free.app"
 const API = {
@@ -34,6 +34,7 @@ const API = {
   //feedback
   feedback: base_url + '/api/feedback',
   deleteFeedback: base_url+"/api/feedback/",
+  toggleVerifyFeedback: base_url + '/api/feedback/',
   //inquiry
   inquiry: base_url + '/api/inquiry',
   //estimations
@@ -43,7 +44,15 @@ const API = {
   //holidays
   holidays: base_url + '/api/holidays',
   //paysip
-  payslip: base_url + '/api/admin/employees/payslip/'
+  payslip: base_url + '/api/admin/employees/payslip/',
+  //notifications
+  saveToken: base_url + '/api/notifications/save-token',
+  sendNotification: base_url + '/api/notifications/send',
+  getDevices: base_url + '/api/notifications/devices',
+  deleteToken: base_url + '/api/notifications/devices',
+  //chat
+  conversations: base_url + '/api/chat/conversations',
+  getChatHistory: base_url + '/api/chat/history/',
 };
 
 export default API;

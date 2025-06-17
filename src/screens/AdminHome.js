@@ -16,6 +16,7 @@ import { base_url } from "../api";
 import { useNavigation } from "@react-navigation/native";
 import NoWorkImage from "../assets/NoWorkImage.png"
 import ImageViewer from '../components/ImageViewer';
+import { Ionicons } from "@expo/vector-icons";
 
 const screenWidth = Dimensions.get("window").width;
 const screenHeight = Dimensions.get("window").height;
@@ -52,7 +53,7 @@ const AdminHome = () => {
   };
 
   return (
-    <><Header title="Crystaloak Constructions"/>
+    <><Header title="Crystaloak Constructions" rightComponent={<Ionicons onPress={() => navigation.navigate("ChatList")} name="chatbubbles" size={24} color="white" />}/>
       <View style={styles.body}>
         <ScrollView
           refreshControl={

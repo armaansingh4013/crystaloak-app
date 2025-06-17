@@ -1,12 +1,12 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import React from 'react';
-import Home from '../screens/Home';
+import Home from '../../screens/Home';
 import { Ionicons } from '@expo/vector-icons';
-import Setting from '../screens/Setting';
-import Profile from '../screens/Profile';
-import Attendance from '../screens/Attendance';
-import WorkImages from '../screens/WorkImages';
-import colorGlobal from "../styles/globals"
+import Setting from '../../screens/Setting';
+import Profile from '../../screens/Profile';
+import Attendance from '../../screens/Attendance';
+import WorkImages from '../../screens/WorkImages';
+import colorGlobal from "../../styles/globals"
 const Tab = createBottomTabNavigator();
 
 const TabNavigator = () => {

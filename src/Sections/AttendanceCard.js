@@ -30,7 +30,7 @@ const AttendanceCard = ({item}) => {
 
     const handleImages = async ()=>{
       if(item.workImages&&item.workImages.length>0)
-        navigation.navigate("workimagespreview",{
+        navigation.navigate("WorkImagesPreview",{
           items:item.workImages
         })
     }
@@ -40,7 +40,7 @@ const AttendanceCard = ({item}) => {
                 <Text style={styles.date}>{formatLocalDate(item.date)}</Text>
                 <Text style={styles.day}>{getWeekdayShort(item.date)}</Text>
               <View style={styles.details}>
-                <Text style={styles.time}>{item.siteId&&item.siteId.name}</Text>
+                <Text style={styles.time} numberOfLines={1} ellipsizeMode="tail">{item.siteId&&item.siteId.name}</Text>
               </View>
               </View>
               <View style={styles.details}>
@@ -92,6 +92,7 @@ const styles = StyleSheet.create({
     },
     details: {
       alignItems: "center",
+      width: 100,
     },
     label: {
       fontSize: 14,
@@ -102,6 +103,7 @@ const styles = StyleSheet.create({
       fontSize: 16,
       fontWeight: "bold",
       color: "#000",
+      // width: '100%',
     },
    imageTitle:{
     textAlign:"center",

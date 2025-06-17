@@ -16,7 +16,7 @@ import {
   Platform,
   Linking,
 } from 'react-native';
-import { getFeedbacks, deleteFeedback } from '../controller/website/feedback';
+import { getFeedbacks, deleteFeedback, toggleVerifyFeedback } from '../controller/website/feedback';
 import Header from '../Sections/Header';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -34,6 +34,7 @@ const FeedbackListScreen = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isVideo, setIsVideo] = useState(false);
   const [videoError, setVideoError] = useState(false);
+  const [verifyingId, setVerifyingId] = useState(null);
 
   useEffect(() => {
     fetchFeedbacks();
@@ -84,6 +85,23 @@ const FeedbackListScreen = () => {
         },
       ]
     );
+  };
+
+  const handleToggleVerify = async (feedbackId, currentVerified) => {
+    try {
+      setVerifyingId(feedbackId);
+      const res = await toggleVerifyFeedback(feedbackId);
+      if (res.success) {
+        setFeedbacks(feedbacks.map(f => 
+          f._id === feedbackId ? { ...f, verified: !currentVerified } : f
+        ));
+      }
+    } catch (err) {
+      console.error('Error toggling feedback verification:', err);
+      Alert.alert('Error', 'Failed to update verification status');
+    } finally {
+      setVerifyingId(null);
+    }
   };
 
   const handleMediaPress = (media, index, isVideoMedia = false) => {
@@ -158,12 +176,29 @@ const FeedbackListScreen = () => {
             <Text style={styles.name}>{item.name}</Text>
             <Text style={styles.email}>{item.email}</Text>
           </View>
-          <TouchableOpacity
-            onPress={() => handleDelete(item._id)}
-            style={styles.deleteButton}
-          >
-            <Icon name="delete" size={24} color="#ef4444" />
-          </TouchableOpacity>
+          <View style={styles.actionButtons}>
+            <TouchableOpacity
+              onPress={() => handleToggleVerify(item._id, item.verified)}
+              style={[styles.verifyButton, item.verified && styles.verifiedButton]}
+              disabled={verifyingId === item._id}
+            >
+              {verifyingId === item._id ? (
+                <ActivityIndicator size="small" color={item.verified ? "#22c55e" : "#6b7280"} />
+              ) : (
+                <Icon 
+                  name={item.verified ? "verified" : "verified-user"} 
+                  size={24} 
+                  color={item.verified ? "#22c55e" : "#6b7280"} 
+                />
+              )}
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => handleDelete(item._id)}
+              style={styles.deleteButton}
+            >
+              <Icon name="delete" size={24} color="#ef4444" />
+            </TouchableOpacity>
+          </View>
         </View>
         
         <View style={styles.ratingContainer}>
@@ -381,6 +416,18 @@ const styles = StyleSheet.create({
     marginTop: 10,
     color: '#ef4444',
     fontSize: 16,
+  },
+  actionButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  verifyButton: {
+    padding: 4,
+  },
+  verifiedButton: {
+    backgroundColor: '#dcfce7',
+    borderRadius: 8,
   },
 });
 

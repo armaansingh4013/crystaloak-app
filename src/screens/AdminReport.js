@@ -544,8 +544,9 @@ const styles = StyleSheet.create({
   dateRow: {
     flex: 1,
     flexDirection: "row",
-    justifyContent: "evenly",
+    justifyContent: "space-between",
     width: "100%",
+    alignItems: "center",
 
   },
   dataBox: {
@@ -557,7 +558,7 @@ const styles = StyleSheet.create({
     width: "20%",
     alignItems: "center",
     justifyContent: "center",
-
+    marginLeft: "auto"
   },
   dropdown: {
     borderWidth: 1,
@@ -650,9 +651,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 8,
-    padding: 12,
+    padding: 6,
+    marginHorizontal: 6,
     backgroundColor: '#fff',
-    width: '100%',
+    width: '90%',
     alignItems: 'center',
   },
   iosButtonContainer: {

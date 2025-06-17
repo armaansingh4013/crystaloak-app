@@ -30,6 +30,19 @@ const fetchData = async ()=>{
     setRefreshing(false)
 }
 
+const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = date.getDate();
+    const month = date.toLocaleString('default', { month: 'short' });
+    const year = date.getFullYear().toString().slice(-2);
+    const hours = date.getHours();
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const formattedHours = hours % 12 || 12;
+    
+    return `${day} ${month} ${year} ${formattedHours}:${minutes}${ampm}`;
+};
+
   const renderEnquiry = ({ item }) => (
     <View style={styles.card}>
       <Text style={styles.name}>{item.name}</Text>
@@ -38,11 +51,10 @@ const fetchData = async ()=>{
       <View style={styles.row}><Text style={styles.label}>Postcode: </Text><Text style={styles.value}>{item.postcode}</Text></View>
       <View style={styles.row}><Text style={styles.label}>Visit/Call: </Text><Text style={styles.value}>{item.visitOrCall}</Text></View>
       <View style={styles.row}><Text style={styles.label}>Budget: </Text><Text style={styles.value}>{item.approximateBudget}</Text></View>
-      <View style={styles.row}><Text style={styles.label}>Date: </Text><Text style={styles.value}>{item.date}</Text></View>
       <View style={styles.row}><Text style={styles.label}>Time: </Text><Text style={styles.value}>{item.time}</Text></View>
      <View style={styles.row}><Text style={styles.label}>Address: </Text><Text style={styles.value}>{item.address}</Text></View>
      <View style={styles.row}><Text style={styles.label}>Spcial Requirements: </Text><Text style={styles.value}>{item.message}</Text></View>
-
+     
       {item.additionalDocument && (
         <View style={styles.documentContainer}>
           <Text style={styles.label}>Additional Document: </Text>
@@ -60,6 +72,9 @@ const fetchData = async ()=>{
           </TouchableOpacity>
         </View>
       )}
+      <View style={styles.dateContainer}>
+        <Text style={styles.dateText}>{formatDate(item.date)}</Text>
+      </View>
     </View>
   );
 
@@ -152,6 +167,15 @@ const styles = StyleSheet.create({
     height: 100,
     borderRadius: 8,
     marginTop: 5,
+  },
+  dateContainer: {
+    marginTop: 10,
+    alignItems: 'flex-end',
+  },
+  dateText: {
+    fontSize: 12,
+    color: '#6b7280',
+    fontStyle: 'italic',
   },
 });
 
