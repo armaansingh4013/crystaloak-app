@@ -68,7 +68,7 @@
   "expo": {
   "doctor": {
     "reactNativeDirectoryCheck": {
-      "exclude": ["react-native-html-to-pdf"],
+      "exclude": ["react-native-html-to-pdf","react-native-element-dropdown"],
       "listUnknownPackages": false
     }
   }
