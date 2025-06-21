@@ -345,7 +345,7 @@ const Sites = () => {
   };
 
   const handleSiteClick = (item) => {
-    navigation.navigate('siteHoliday', {
+    navigation.navigate('SiteHolidayScreen', {
       siteId: item._id,
       name: item.name,
       isActive: item.isActive,

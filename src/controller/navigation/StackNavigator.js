@@ -1,34 +1,40 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-
-import Login from '../screens/Login';
+import Login from '../../screens/Login'
 import TabNavigator from './TabNavigator';
-import { getToken, getUserData } from '../components/Storage';
+import { getToken, getUserData } from '../../components/Storage';
 import AdminNavigator from './AdminNavigator';
-import { AuthContext } from '../components/AuthContext';
-import WorkImagesPreview from '../screens/WorkImagesPreview';
-import Sites from '../screens/Sites';
-import Employees from '../screens/Employees';
+import { AuthContext } from '../../components/AuthContext';
+import WorkImagesPreview from '../../screens/WorkImagesPreview';
+import Sites from '../../screens/Sites';
+import Employees from '../../screens/Employees';
 import Toast from 'react-native-toast-message';
-import ServiceManagerScreen from '../screens/ServiceManagerScreen';
-import FeedbackListScreen from '../screens/FeedbackListScreen';
-import QueryListScreen from '../screens/QueryListScreen';
-import SiteHolidayScreen from '../screens/SiteHolidayScreen';
-import EditServiceScreen from '../screens/EditServiceScreen';
-import AttendanceDetails from '../screens/AttendanceDetails';
-import ShiftScreen from '../screens/ShiftScreen';
-import HolidaysScreen from '../screens/HolidaysScreen';
-import Profile from '../screens/Profile';
-import AdminEditEmployee from '../screens/AdminEditEmployee';
-import Estimations from '../screens/Estimations';
-import EstimationDetails from '../screens/EstimationDetails';
-import DocumentUpload from '../screens/DocumentUpload';
-import PaySlipSelection from '../screens/PaySlipSelection';
-import PaySlipDetails from '../screens/PaySlipDetails';
-import PaySlipView from '../screens/PaySlipView';
-import getProfile from '../controller/profile';
-
+import ServiceManagerScreen from '../../screens/ServiceManagerScreen';
+import FeedbackListScreen from '../../screens/FeedbackListScreen';
+import QueryListScreen from '../../screens/QueryListScreen';
+import SiteHolidayScreen from '../../screens/SiteHolidayScreen';
+import EditServiceScreen from '../../screens/EditServiceScreen';
+import AttendanceDetails from '../../screens/AttendanceDetails';
+import ShiftScreen from '../../screens/ShiftScreen';
+import HolidaysScreen from '../../screens/HolidaysScreen';
+import Profile from '../../screens/Profile';
+import AdminEditEmployee from '../../screens/AdminEditEmployee';
+import Estimations from '../../screens/Estimations';
+import EstimationDetails from '../../screens/EstimationDetails';
+import DocumentUpload from '../../screens/DocumentUpload';
+import PaySlipSelection from '../../screens/PaySlipSelection';
+import PaySlipDetails from '../../screens/PaySlipDetails';
+import PaySlipView from '../../screens/PaySlipView';
+import getProfile from '../profile';
+import About from '../../screens/About';
+import Tutorial from '../../screens/Tutorial';
+import ChatListScreen from '../../screens/ChatListScreen';
+import ChatScreen from '../../screens/ChatScreen';
+import { registerForPushNotificationsAsync, savePushToken } from '../../services/notifications';
+import * as Notifications from 'expo-notifications';
+import API from '../../api';
+import { Text, View } from 'react-native';
 const Stack = createStackNavigator();
 
 const StackNavigator = () => {
@@ -68,13 +74,45 @@ const StackNavigator = () => {
     checkAuth();
   }, [user]);
 
+  useEffect(() => {
+    (async () => {
+      try {
+        const token = await registerForPushNotificationsAsync();
+        if (token) {
+          await savePushToken(token);
+        }
+      } catch (error) {
+        console.error('Error setting up notifications:', error);
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    const subscription = Notifications.addNotificationReceivedListener(notification => {
+      console.log('Notification Received:', notification);
+      const { title, body } = notification.request.content;
+      Toast.show({
+        type: 'info',
+        text1: title,
+        text2: body,
+        position: 'top',
+        visibilityTime: 4000,
+      });
+    });
+
+    return () => subscription.remove();
+  }, []);
+
   console.log('Current initialRoute:', initialRoute);
 
   if (!initialRoute) {
-    console.log('No initial route set, returning null');
-    return null;
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
+        <Text style={{ fontSize: 18 }}>Loading...</Text>
+      </View>
+    );
   }
-
+try{
   return (
     <NavigationContainer>
       <Stack.Navigator
@@ -105,9 +143,20 @@ const StackNavigator = () => {
         <Stack.Screen name="PaySlipSelection" component={PaySlipSelection}/>
         <Stack.Screen name="PaySlipDetails" component={PaySlipDetails}/>
         <Stack.Screen name="PaySlipView" component={PaySlipView}/>
+        <Stack.Screen name="About" component={About}/>
+        <Stack.Screen name="Tutorial" component={Tutorial}/>
+        <Stack.Screen name="ChatList" component={ChatListScreen} />
+        <Stack.Screen name="Chat" component={ChatScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
+} catch (e) {
+  return (
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Text>Something went wrong: {e.message}</Text>
+    </View>
+  );
+}
 };
 
 export default StackNavigator;

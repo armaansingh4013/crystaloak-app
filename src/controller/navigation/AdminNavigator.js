@@ -1,21 +1,21 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import React from 'react';
-import Home from '../screens/Home';
+import Home from '../../screens/Home';
 import { Ionicons } from '@expo/vector-icons';
-import Attendance from '../screens/Attendance';
-import WorkImages from '../screens/WorkImages';
-import colorGlobal from "../styles/globals"
-import AdminHome from '../screens/AdminHome';
-import AdminAttendance from '../screens/AdminAttendance';
-import AdminReport from '../screens/AdminReport';
-import Header from '../Sections/Header';
+import Attendance from '../../screens/Attendance';
+import WorkImages from '../../screens/WorkImages';
+import colorGlobal from "../../styles/globals"
+import AdminHome from '../../screens/AdminHome';
+import AdminAttendance from '../../screens/AdminAttendance';
+import AdminReport from '../../screens/AdminReport';
+import Header from '../../Sections/Header';
 import { TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import AdminSettings from '../screens/AdminSettings';
-import AdminAddEmployee from '../screens/AdminAddEmployee';
+import AdminSettings from '../../screens/AdminSettings';
+import AdminAddEmployee from '../../screens/AdminAddEmployee';
 import { createStackNavigator } from '@react-navigation/stack';
-import ShiftScreen from '../screens/ShiftScreen';
-import HolidaysScreen from '../screens/HolidaysScreen';
+import ShiftScreen from '../../screens/ShiftScreen';
+import HolidaysScreen from '../../screens/HolidaysScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();

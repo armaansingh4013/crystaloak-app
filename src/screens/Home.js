@@ -201,7 +201,7 @@ const Home = () => {
             type: 'error',
             text1: 'Failed to upload photo',
             text2: 'Please try again',
-            position: 'center',
+            position: 'top',
           });
           return;
         }
@@ -228,7 +228,7 @@ const Home = () => {
           type: 'error',
           text1: 'Failed to process photo and attendance',
           text2: 'Please try again',
-          position: 'center',
+          position: 'top',
         });
       } finally {
         setLoading(false);
@@ -244,7 +244,7 @@ const Home = () => {
           type: 'success',
           text1: 'Check-in Successful!',
           text2: 'You have been checked in successfully',
-          position: 'center',
+          position: 'top',
         });
         // Refresh attendance status
         await getAttendanceStatus(data.userId);
@@ -253,7 +253,7 @@ const Home = () => {
           type: 'error',
           text1: 'Check-in Failed',
           text2: res.message || 'Please try again',
-          position: 'center',
+          position: 'top',
         });
       }
     } catch (error) {
@@ -261,7 +261,7 @@ const Home = () => {
         type: 'error',
         text1: 'Check-in Failed',
         text2: 'Please try again',
-        position: 'center',
+        position: 'top',
       });
     }
   };
@@ -274,7 +274,7 @@ const Home = () => {
           type: 'success',
           text1: 'Check-out Successful!',
           text2: 'You have been checked out successfully',
-          position: 'center',
+          position: 'top',
         });
         // Refresh attendance status
         await getAttendanceStatus(data.userId);
@@ -283,7 +283,7 @@ const Home = () => {
           type: 'error',
           text1: 'Check-out Failed',
           text2: res.message || 'Please try again',
-          position: 'center',
+          position: 'top',
         });
       }
     } catch (error) {
@@ -291,7 +291,7 @@ const Home = () => {
         type: 'error',
         text1: 'Check-out Failed',
         text2: 'Please try again',
-        position: 'center',
+        position: 'top',
       });
     }
   };
@@ -328,7 +328,7 @@ const Home = () => {
             }>
         <Header
             title="Crystaloak Construction"
-          
+            rightComponent={<Ionicons onPress={() => navigation.navigate("Chat",{ user:data,role:"employee" })} name="chatbubbles" size={24} color="white" />}
           />
         <View style={style.section}>
 
@@ -358,7 +358,10 @@ const Home = () => {
           <View style={style.mainSection}>
             <View style={style.header}>
               <View>
-             { !attendance.canCheckIn &&
+             { attendance.canCheckOut?<Text
+               
+                style={{marginTop: 10,width:screenWidth*0.9 , backgroundColor:"#D3D3D3" , padding:15, borderRadius:10}}
+              >{sites.find((site) => site._id === selectedSite)?.name || 'Site not found'}</Text>:!attendance.canCheckIn &&
                   !attendance.canCheckOut ?<></>:<Dropdown
                 data={sites}
                 search
@@ -628,6 +631,7 @@ const style = StyleSheet.create ({
     shadowOpacity: 0.2,
     shadowRadius: 5,
     elevation: 8,
+    gap:8
   },
   card: {
     paddingVertical: 20,

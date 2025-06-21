@@ -40,8 +40,8 @@ const AdminEditEmployee = ({ route, navigation }) => {
     email: employee.email,
     department: employee.department,
     designation: employee.designation,
-    hourSalary: employee.hourSalary,
-    daySalary: employee.daySalary,
+    hourSalary: employee.hourSalary || "0",
+    daySalary: employee.daySalary || "0",
     address: employee.address || '',
     insuranceNumber: employee.insuranceNumber || '',
     passportNumber: employee.passportNumber || '',
@@ -381,7 +381,7 @@ const AdminEditEmployee = ({ route, navigation }) => {
             </TouchableOpacity>
             <TouchableOpacity 
               style={styles.editButton}
-              onPress={() => setIsEditing(!isEditing)}
+              onPress={() => { if(isEditing){handleSaveDetails()} setIsEditing(!isEditing)}}
             >
               <Ionicons 
                 name={isEditing ? "checkmark" : "pencil"} 
@@ -502,7 +502,7 @@ const AdminEditEmployee = ({ route, navigation }) => {
           )}
         </View>
         <View style={styles.infoContainer}>
-          <Text style={styles.label}>Hour Basis Salary</Text>
+          <Text style={styles.label}>Hour Basis Salar (£)</Text>
           {isEditing ? (
             <TextInput
               style={styles.input}
@@ -511,11 +511,11 @@ const AdminEditEmployee = ({ route, navigation }) => {
               placeholder="Enter Hour Basis Salary"
             />
           ) : (
-            <Text style={styles.value}>{formData.hourSalary}</Text>
+            <Text style={styles.value}>£{formData.hourSalary}</Text>
           )}
         </View>
         <View style={styles.infoContainer}>
-          <Text style={styles.label}>Day Basis Salary</Text>
+          <Text style={styles.label}>Day Basis Salary (£)</Text>
           {isEditing ? (
             <TextInput
               style={styles.input}
@@ -524,7 +524,7 @@ const AdminEditEmployee = ({ route, navigation }) => {
               placeholder="Enter Day Basis Salary"
             />
           ) : (
-            <Text style={styles.value}>{formData.daySalary}</Text>
+            <Text style={styles.value}>£{formData.daySalary}</Text>
           )}
         </View>
 

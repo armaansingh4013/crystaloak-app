@@ -184,7 +184,6 @@ const Employees = () => {
 
   return (
     <View style={{ flex: 1 }}>
-      {loading && <Loader />}
       <Header onBackPress={() => navigation.goBack()} title="Employees" />
       <View style={styles.container}>
         <View style={styles.searchContainer}>
@@ -205,6 +204,7 @@ const Employees = () => {
           renderItem={renderEmployee}
         />
 
+{loading && <Loader />}
         <Modal
           visible={modalVisible}
           animationType="slide"
@@ -276,6 +276,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginBottom: 16,
     elevation: 2,
+    zIndex:99
   },
   searchIcon: {
     marginRight: 10,

@@ -136,6 +136,13 @@ const Profile = () => {
     const res = await getProfile();
     if (res.success) {
       setData(res.data);
+    } else {
+      Toast.show({
+        type: 'error',
+        text1: 'Failed to fetch profile',
+        text2: res.message || 'Please try again',
+        position: 'top',
+      });
     }
     setRefreshing(false)
   };

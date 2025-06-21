@@ -22,6 +22,8 @@ import Toast from "react-native-toast-message";
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system';
+import { Asset } from 'expo-asset';
+
 
 const AdminReport = () => {
   const [people, setPeople] = useState([])
@@ -132,11 +134,16 @@ const AdminReport = () => {
     if (!employee || !data) return '';
 
     // Convert logo to base64
-    const logoPath = require('../assets/DarkLogo.png');
+    // const logoPath = require('../assets/DarkLogo.png');
     // const logoBase64 = await FileSystem.readAsStringAsync(logoPath, {
     //   encoding: FileSystem.EncodingType.Base64,
     // });
-
+    const logoAsset = Asset.fromModule(require('../assets/DarkLogo.png'));
+    await logoAsset.downloadAsync(); // Make sure it's available locally
+    
+    const logoBase64 = await FileSystem.readAsStringAsync(logoAsset.localUri, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
     const formatTime = (dateString) => {
       if (!dateString) return '-';
       const date = new Date(dateString);
@@ -211,7 +218,8 @@ const AdminReport = () => {
         </head>
         <body>
           <div class="letterhead">
-            <img src="data:image/png;base64,${logoPath}" alt="Crystal Oak Logo" class="company-logo" />
+<img src="data:image/png;base64,${logoBase64}" class="company-logo" />
+
             <div class="company-info">
               <h1 class="company-name">Crystal Oak Constructions</h1>
               <p class="company-contact">
@@ -544,8 +552,9 @@ const styles = StyleSheet.create({
   dateRow: {
     flex: 1,
     flexDirection: "row",
-    justifyContent: "evenly",
+    justifyContent: "space-between",
     width: "100%",
+    alignItems: "center",
 
   },
   dataBox: {
@@ -557,7 +566,7 @@ const styles = StyleSheet.create({
     width: "20%",
     alignItems: "center",
     justifyContent: "center",
-
+    marginLeft: "auto"
   },
   dropdown: {
     borderWidth: 1,
@@ -650,9 +659,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 8,
-    padding: 12,
+    padding: 6,
+    marginHorizontal: 6,
     backgroundColor: '#fff',
-    width: '100%',
+    width: '90%',
     alignItems: 'center',
   },
   iosButtonContainer: {

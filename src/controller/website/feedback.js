@@ -46,3 +46,25 @@ export const deleteFeedback = async (data) => {
     return { success: false, message: error.message };
   }
 };
+
+export const toggleVerifyFeedback = async (feedbackId) => {
+  try {
+    const response = await fetch(API.toggleVerifyFeedback + feedbackId + '/toggle-verify', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+
+    const res = await response.json();
+
+    if (!response.ok) {
+      throw new Error(res.message || 'Toggling feedback verification failed');
+    }
+
+    return { success: true, data: res };
+  } catch (error) {
+    console.error('Feedback verify toggle error:', error);
+    return { success: false, message: error.message };
+  }
+};
