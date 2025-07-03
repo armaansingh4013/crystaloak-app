@@ -4,11 +4,11 @@
     "slug": "crystaloak-app",
     "version": "1.0.2",
     "orientation": "portrait",
-    "icon": "./assets/logo-square.png",
+    "icon": "./src/assets/logo-square.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": false,
+    "newArchEnabled": true,
     "splash": {
-      "image": "./assets/logo-square.png",
+      "image": "./src/assets/logo-square.png",
       "resizeMode": "contain",
       "backgroundColor": "#5949b2"
     },
@@ -16,12 +16,17 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.armaansingh4886.crystaloakapp",
       "infoPlist": {
-        "NSContactsUsageDescription": "This app needs access to your contacts to select employee details."
+        "NSContactsUsageDescription": "This app needs access to your contacts to select employee details for internal communication and management.",
+        "NSCameraUsageDescription": "This app needs access to your camera to allow you to capture photos for profile pictures, document uploads, or in-app features.",
+        "NSMicrophoneUsageDescription": "This app needs access to your microphone to enable audio recording for voice notes or communication features.",
+        "NSLocationWhenInUseUsageDescription": "This app needs access to your location to provide location-based services, such as attendance tracking or location tagging.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "This app needs access to your location to provide location-based services, such as attendance tracking or location tagging.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/logo-square.png",
+        "foregroundImage": "./src/assets/logo-square.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.armaansingh4886.crystaloakapp",
@@ -41,32 +46,33 @@
       ]
     },
     "web": {
-      "favicon": "./assets/logo.png"
+      "favicon": "./src/assets/logo.png"
     },
     "plugins": [
       [
         "expo-notifications",
         {
-          "icon": "./assets/logo.png",
-          "color": "#5949b2"
+          "icon": "./src/assets/logo.png",
+          "color": "#5949b2",
+          "permission": "This app needs permission to send you notifications about important updates, reminders, and messages."
         }
       ],
       [
         "expo-av",
         {
-          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone."
+          "microphonePermission": "This app needs access to your microphone to enable audio recording for voice notes or communication features."
         }
       ],
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera."
+          "cameraPermission": "This app needs access to your camera to allow you to capture photos for profile pictures, document uploads, or in-app features."
         }
       ],
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location."
+          "locationAlwaysAndWhenInUsePermission": "This app needs access to your location to provide location-based services, such as attendance tracking or location tagging."
         }
       ],
       [
@@ -74,10 +80,11 @@
         {
           "contacts": {
             "ios": {
-              "usageDescription": "This app needs access to your contacts to select employee details."
+              "usageDescription": "This app needs access to your contacts to select employee details for internal communication and management."
             },
             "android": {
-              "permission": "android.permission.READ_CONTACTS"
+              "permission": "android.permission.READ_CONTACTS",
+              "reason": "This app needs access to your contacts to select employee details for internal communication and management."
             }
           }
         }

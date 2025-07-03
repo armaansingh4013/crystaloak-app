@@ -124,11 +124,11 @@ const ChatListScreen = ({ navigation }) => {
           <Text style={styles.lastMessage} numberOfLines={1}>
             {item.lastMessage.content}
           </Text>
-          {/* {item.unread > 0 && (
+          {item.unreadCount > 0 && (
             <View style={styles.unreadBadge}>
-              <Text style={styles.unreadText}>{item.unread}</Text>
+              <Text style={styles.unreadText}>{item.unreadCount}</Text>
             </View>
-          )} */}
+          )}
         </View>
       </View>
     </TouchableOpacity>

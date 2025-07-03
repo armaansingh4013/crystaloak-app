@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
   },
   header: {
     fontSize: 26,
-    fontWeight: 'bold',
+    fontWeight: 700,
     padding: 20,
     backgroundColor: '#6366f1',
     color: 'white',
@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: 700,
     marginBottom: 10,
     color: '#1f2937',
   },
@@ -151,12 +151,12 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: 600,
     color: '#6b7280',
   },
   value: {
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: 500,
     color: '#111827',
   },
   documentContainer: {

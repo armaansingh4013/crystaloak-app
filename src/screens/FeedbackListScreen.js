@@ -274,7 +274,7 @@ const styles = StyleSheet.create({
   },
   header: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: 700,
     padding: 16,
     textAlign: 'center',
     backgroundColor: '#eef2ff',
@@ -296,7 +296,7 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: 600,
     color: '#111827',
   },
   email: {
@@ -348,7 +348,7 @@ const styles = StyleSheet.create({
   counter: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 600,
   },
   imageContainer: {
     width: SCREEN_WIDTH,
@@ -378,7 +378,7 @@ const styles = StyleSheet.create({
     marginLeft: 4,
     fontSize: 16,
     color: '#f59e0b',
-    fontWeight: '600',
+    fontWeight: 600,
   },
   mediaRow: {
     flexDirection: 'row',

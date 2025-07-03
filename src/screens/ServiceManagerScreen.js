@@ -161,7 +161,7 @@ const ServiceManagerScreen = () => {
     // setImages(service.images);
     // setEditingServiceId(service._id);
     // setModalVisible(true);
-    navigation.navigate('EditService', { service });
+    navigation.navigate('EditServiceScreen', { service });
   };
 
   const renderService = ({ item }) => (
@@ -321,12 +321,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginRight: 8,
   },
-  modalButtonText: { color: '#fff', fontWeight: '600', marginLeft: 6 },
+  modalButtonText: { color: '#fff', fontWeight: 600, marginLeft: 6 },
   closeButton: {
     marginTop: 12,
     alignItems: 'center',
   },
-  closeButtonText: { color: '#ef4444', fontWeight: '600' },
+  closeButtonText: { color: '#ef4444', fontWeight: 600 },
   deleteImageButton: {
     position: 'absolute',
     top: -6,

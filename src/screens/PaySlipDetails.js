@@ -174,6 +174,8 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     padding: 20,
+    marginBottom: 60,
+    flexGrow: 1,
   },
   section: {
     marginBottom: 20,
@@ -210,7 +212,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#4CAF50',
     padding: 15,
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: 'center'
   },
   generateButtonText: {
     color: '#fff',

@@ -16,7 +16,7 @@ import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import color from '../styles/globals';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { createHoliday, fetchHoliday } from '../controller/admin/holiday';
+import { createHoliday, fetchHoliday, updateHoliday, deleteHoliday } from '../controller/admin/holiday';
 
 const HolidaysScreen = () => {
   const [holidays, setHolidays] = useState([]);
@@ -29,6 +29,8 @@ const HolidaysScreen = () => {
     description: '',
     isRecurring: false,
   });
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [selectedHoliday, setSelectedHoliday] = useState(null);
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -73,6 +75,77 @@ const HolidaysScreen = () => {
     }
   };
 
+  const handleUpdateHoliday = async () => {
+    try {
+      const res = await updateHoliday(selectedHoliday._id, newHoliday);
+      if (res.success) {
+        Alert.alert('Success', 'Holiday updated successfully');
+        setIsModalVisible(false);
+        setIsEditMode(false);
+        setSelectedHoliday(null);
+        setNewHoliday({
+          name: '',
+          date: '',
+          description: ''
+        });
+        loadHolidays();
+      } else {
+        Alert.alert('Error', res.message);
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to update holiday');
+    }
+  };
+
+  const handleDeleteHoliday = async (holidayId) => {
+    Alert.alert(
+      'Delete Holiday',
+      'Are you sure you want to delete this holiday?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const res = await deleteHoliday(holidayId);
+              if (res.success) {
+                Alert.alert('Success', 'Holiday deleted successfully');
+                loadHolidays();
+              } else {
+                Alert.alert('Error', res.message);
+              }
+            } catch (error) {
+              Alert.alert('Error', 'Failed to delete holiday');
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const handleEditHoliday = (holiday) => {
+    setSelectedHoliday(holiday);
+    setNewHoliday({
+      name: holiday.name,
+      date: holiday.date,
+      description: holiday.description
+    });
+    setIsEditMode(true);
+    setIsModalVisible(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalVisible(false);
+    setIsEditMode(false);
+    setSelectedHoliday(null);
+    setNewHoliday({
+      name: '',
+      date: '',
+      description: ''
+    });
+  };
+
   const onDateChange = (event, selectedDate) => {
     setShowDatePicker(false);
     if (selectedDate) {
@@ -92,11 +165,24 @@ const HolidaysScreen = () => {
 
   const renderHolidayItem = ({ item }) => (
     <View style={styles.holidayCard}>
-      <View style={styles.holidayHeader}>
-        <Text style={styles.holidayName}>{item.name}</Text>
-        
+      <View style={styles.topRow}>
+        <Text style={styles.holidayDate}>{formatDate(item.date)}</Text>
+        <View style={styles.actionButtons}>
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => handleEditHoliday(item)}
+          >
+            <Icon name="edit" size={20} color={color.primary} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => handleDeleteHoliday(item._id)}
+          >
+            <Icon name="delete" size={20} color="#ff4444" />
+          </TouchableOpacity>
+        </View>
       </View>
-      <Text style={styles.holidayDate}>{formatDate(item.date)}</Text>
+      <Text style={styles.holidayName}>{item.name}</Text>
       <Text style={styles.holidayDescription}>{item.description}</Text>
     </View>
   );
@@ -111,10 +197,12 @@ const HolidaysScreen = () => {
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Add New Holiday</Text>
+            <Text style={styles.modalTitle}>
+              {isEditMode ? 'Edit Holiday' : 'Add New Holiday'}
+            </Text>
             <TouchableOpacity
               style={styles.closeButton}
-              onPress={() => setIsModalVisible(false)}
+              onPress={handleCloseModal}
             >
               <Icon name="close" size={24} color="#000" />
             </TouchableOpacity>
@@ -169,9 +257,11 @@ const HolidaysScreen = () => {
 
           <TouchableOpacity
             style={styles.addButton}
-            onPress={handleAddHoliday}
+            onPress={isEditMode ? handleUpdateHoliday : handleAddHoliday}
           >
-            <Text style={styles.addButtonText}>Add Holiday</Text>
+            <Text style={styles.addButtonText}>
+              {isEditMode ? 'Update Holiday' : 'Add Holiday'}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -245,10 +335,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 8,
   },
+  topRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 4,
+  },
   holidayName: {
     fontSize: 18,
     fontWeight: '600',
     color: '#333',
+    flex: 1,
+    minWidth: 0,
+    marginRight: 8,
+    marginBottom: 4,
   },
   recurringBadge: {
     backgroundColor: color.primary,
@@ -259,7 +359,7 @@ const styles = StyleSheet.create({
   recurringText: {
     color: '#fff',
     fontSize: 12,
-    fontWeight: '500',
+    fontWeight: 500,
   },
   holidayDate: {
     fontSize: 16,
@@ -294,7 +394,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 20,
-    fontWeight: '600',
+    fontWeight: 600,
     color: '#333',
   },
   closeButton: {
@@ -353,7 +453,15 @@ const styles = StyleSheet.create({
   addButtonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 600,
+  },
+  actionButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  actionButton: {
+    padding: 8,
+    marginLeft: 8,
   },
 });
 

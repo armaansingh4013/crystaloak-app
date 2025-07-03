@@ -301,7 +301,8 @@ const styles = StyleSheet.create({
   },
   employeeName: {
     fontSize: 18,
-    fontWeight: '500',
+    fontWeight: 700,
+    color:"black"
   },
   employeeStatus: {
     fontSize: 14,
@@ -361,7 +362,7 @@ const styles = StyleSheet.create({
   submitButtonText: {
     color: '#fff',
     textAlign: 'center',
-    fontWeight: '600',
+    fontWeight: 600,
     fontSize: 16,
   },
 });

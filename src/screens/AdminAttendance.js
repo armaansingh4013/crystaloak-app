@@ -20,6 +20,9 @@ import LottieView from 'lottie-react-native';
 import color from "../styles/globals"
 import Loader from '../Sections/Loader';
 import holiday from "../assets/holiday.json"
+import Icon from 'react-native-vector-icons/FontAwesome';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+
 const AdminAttendance = () => {
   const [date, setDate] = useState(new Date());
   const [showPicker, setShowPicker] = useState(false);
@@ -53,6 +56,17 @@ const AdminAttendance = () => {
         setDate(selectedDate);
       }
     }
+    // Automatically fetch data when date is changed from modal 'Done' button
+    if (event.type === 'set' && Platform.OS === 'ios') {
+      // This is a proxy for the 'Done' button on iOS, as there's no direct way to capture it.
+      // The fetch will happen when the user dismisses the picker.
+    }
+  };
+
+  const handleIosPickerDone = () => {
+    setShowModal(false);
+    setShowPicker(false);
+    fetchData(); // Fetch data when 'Done' is pressed
   };
 
   const renderDatePickerModal = () => {
@@ -79,10 +93,7 @@ const AdminAttendance = () => {
             <View style={styles.modalFooter}>
               <TouchableOpacity
                 style={styles.modalButton}
-                onPress={() => {
-                  setShowModal(false);
-                  setShowPicker(false);
-                }}
+                onPress={handleIosPickerDone}
               >
                 <Text style={styles.modalButtonText}>Done</Text>
               </TouchableOpacity>
@@ -99,47 +110,46 @@ const AdminAttendance = () => {
       {loading&&<Loader/>}
       {/* Header Section */}
       <View style={styles.header}>
-        <View style={styles.dateContainer}>
-          <Text>Date:</Text>
-          <TouchableOpacity
-            onPress={() => {
-              if (Platform.OS === 'ios') {
-                setShowModal(true);
-              } else {
-                setShowPicker(true);
-              }
-            }}
-            style={styles.dateInput}
-          >
-            <Text>{date.toDateString()}</Text>
+        <View style={styles.headerRow}>
+          <View style={styles.dateContainer}>
+            <Icon name="calendar" size={24} color="#555" />
+            <TouchableOpacity
+              onPress={() => {
+                if (Platform.OS === 'ios') {
+                  setShowModal(true);
+                } else {
+                  setShowPicker(true);
+                }
+              }}
+              style={styles.dateInput}
+            >
+              <Text style={styles.dateText}>{date.toDateString().substring(4)}</Text>
+            </TouchableOpacity>
+            {Platform.OS === 'android' && showPicker && (
+              <DateTimePicker
+                value={date}
+                mode="date"
+                display="default"
+                onChange={onDateChange}
+              />
+            )}
+          </View>
+          <TouchableOpacity onPress={fetchData}>
+            <MaterialCommunityIcons name="refresh" size={30} color={color.secondary} />
           </TouchableOpacity>
-          {Platform.OS === 'android' && showPicker && (
-            <DateTimePicker
-              value={date}
-              mode="date"
-              display="default"
-              onChange={onDateChange}
-            />
-          )}
         </View>
-
-        <View style={styles.totalPresentContainer}>
-          <Text>
-            Total Present: {data.attendance ? data.attendance.length : 0}
-          </Text>
+        <View style={styles.divider} />
+        <View style={styles.headerRow}>
+          <View style={styles.totalPresentContainer}>
+            <MaterialCommunityIcons name="check-circle" size={24} color="green" />
+            <Text style={styles.presentText}>
+              {data.attendance ? data.attendance.length : 0} Present
+            </Text>
+          </View>
+          <TouchableOpacity onPress={fetchData}>
+            <Text style={styles.refreshText}>Refresh</Text>
+          </TouchableOpacity>
         </View>
-
-        <TouchableOpacity
-          onPress={fetchData}
-          style={{
-            ...styles.totalPresentContainer,
-            backgroundColor: color.secondary,
-            padding: 8,
-            borderRadius: 10,
-          }}
-        >
-          <Text>GET</Text>
-        </TouchableOpacity>
       </View>
 
       {renderDatePickerModal()}
@@ -150,26 +160,20 @@ const AdminAttendance = () => {
           <Text style={{fontSize: 20, fontWeight: "bold"}}>There was holiday on this day</Text>
         </View>
       ) : (
-        <>
-          {!data.attendance || data.attendance.length == 0 ? (
-            <View style={{
-              height: '100%',
-              width: '100%',
-              flex: 1,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
-              <LottieView style={{height: 150, width: 150}} source={noAttendance} autoPlay loop/>
-              <Text>No attendance for the day</Text>
-            </View>
-          ) : (
-            <FlatList
-              data={data.attendance}
-              keyExtractor={item => item.employeeCode}
-              renderItem={({item}) => <AdminAttendanceCard item={item} />}
-            />
+        <FlatList
+          data={data.attendance}
+          keyExtractor={item => item.employeeCode}
+          renderItem={({item}) => <AdminAttendanceCard item={item} />}
+          ListEmptyComponent={() => (
+            !loading && (
+              <View style={styles.emptyContainer}>
+                <LottieView style={{height: 150, width: 150}} source={noAttendance} autoPlay loop/>
+                <Text>No attendance for the day</Text>
+              </View>
+            )
           )}
-        </>
+          contentContainerStyle={data.attendance?.length > 0 ? {} : {flex: 1}}
+        />
       )}
     </View>
   );
@@ -178,13 +182,27 @@ const AdminAttendance = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F8F8',
+    backgroundColor: '#F4F7FC', // A lighter grey background
   },
   header: {
-    backgroundColor: '#FFF',
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 10,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 15,
+    padding: 20,
+    marginHorizontal: 15,
+    marginTop: 10,
+    marginBottom: 20,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#EAEAEA',
+    marginVertical: 15,
+  },
+  headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -194,22 +212,32 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   dateInput: {
-    backgroundColor: '#EAEAEA',
-    padding: 8,
-    borderRadius: 5,
-    marginLeft: 5,
+    marginLeft: 10,
+  },
+  dateText: {
+    fontSize: 18,
+    fontWeight: 600,
+    color: '#333',
   },
   totalPresentContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  totalPresentInput: {
-    backgroundColor: '#EAEAEA',
-    padding: 8,
-    borderRadius: 5,
-    width: 50,
-    textAlign: 'center',
-    marginLeft: 5,
+  presentText: {
+    marginLeft: 10,
+    fontSize: 18,
+    fontWeight: 600,
+    color: '#333',
+  },
+  refreshText: {
+    fontSize: 16,
+    fontWeight: 600,
+    color: color.secondary,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   modalContainer: {
     flex: 1,
@@ -230,7 +258,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: 600,
     color: '#333',
   },
   modalFooter: {
@@ -248,7 +276,7 @@ const styles = StyleSheet.create({
   modalButtonText: {
     color: 'white',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 600,
   },
   iosDatePicker: {
     height: 200,

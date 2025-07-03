@@ -112,7 +112,7 @@ const SiteHolidayScreen = ({ route }) => {
 
   return (
     <>
-      <Header title="Site Holidays" onBackPress={() => navigation.goBack()} />
+      <Header title="Site" onBackPress={() => navigation.goBack()} />
 
       <View style={styles.container}>
         <Text style={styles.label}>Site Name</Text>
@@ -204,7 +204,7 @@ const SiteHolidayScreen = ({ route }) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16, backgroundColor: '#f9fafb' },
-  label: { fontSize: 16, fontWeight: '500', marginBottom: 4 },
+  label: { fontSize: 16, fontWeight: 500, marginBottom: 4 ,color:"black"},
   input: {
     backgroundColor: '#fff',
     borderRadius: 10,
@@ -213,6 +213,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     borderWidth: 1,
     borderColor: '#e5e7eb',
+    color:"black"
   },
   switchRow: {
     flexDirection: 'row',
@@ -221,12 +222,12 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   saveButton: {
-    backgroundColor: color.primary,
+    backgroundColor: color.secondary,
     padding: 12,
     borderRadius: 10,
     alignItems: 'center',
   },
-  saveText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  saveText: { color: '#fff', fontSize: 16, fontWeight: 600 },
   addRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
   addBtn: {
     marginLeft: 8,
@@ -260,9 +261,9 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 16,
   },
-  modalTitle: { fontSize: 18, fontWeight: '600', marginBottom: 10 },
+  modalTitle: { fontSize: 18, fontWeight: 600, marginBottom: 10 },
   cancelButton: { marginTop: 10, alignItems: 'center' },
-  cancelText: { color: 'red', fontWeight: '500' },
+  cancelText: { color: 'red', fontWeight: 500 },
   dateButton: {
     backgroundColor: '#fff',
     padding: 10,

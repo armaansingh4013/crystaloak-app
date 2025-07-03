@@ -23,11 +23,10 @@ import Toast from 'react-native-toast-message';
 
 const screenHeight = Dimensions.get("window").height;
 
-const InputField = ({ label, icon, value, onChangeText, placeholder, keyboardType = 'default' }) => (
+const InputField = ({ value, onChangeText, placeholder, icon, keyboardType = 'default', editable = true, error = false, errorMessage = '' }) => (
   <View style={styles.inputContainer}>
-    <Text style={styles.label}>{label}</Text>
-    <View style={styles.inputWrapper}>
-      {icon && <Ionicons name={icon} size={20} color="#666" style={styles.icon} />}
+    <View style={[styles.inputWrapper, error && styles.inputError]}>
+      {icon && <Ionicons name={icon} size={20} color={error ? "#ff0000" : "#666"} style={styles.icon} />}
       <TextInput
         style={styles.input}
         placeholder={placeholder}
@@ -35,8 +34,12 @@ const InputField = ({ label, icon, value, onChangeText, placeholder, keyboardTyp
         onChangeText={onChangeText}
         keyboardType={keyboardType}
         placeholderTextColor="#aaa"
+        editable={editable}
       />
     </View>
+    {error && errorMessage && (
+      <Text style={styles.errorText}>{errorMessage}</Text>
+    )}
   </View>
 );
 
@@ -55,6 +58,11 @@ const AdminAddEmployee = ({ route, navigation }) => {
   const [contacts, setContacts] = useState([]);
   const [sharePhone, setSharePhone] = useState(0);
   const [isEditMode, setIsEditMode] = useState(!!employee);
+  const [fieldErrors, setFieldErrors] = useState({
+    name: false,
+    phone: false,
+    email: false
+  });
 
   useEffect(() => {
     if (employee) {
@@ -135,13 +143,16 @@ const AdminAddEmployee = ({ route, navigation }) => {
     }
     
     if (contact.phoneNumbers && contact.phoneNumbers.length > 0) {
-      updatedForm.phone = contact.phoneNumbers[0].number;
+      const phone = contact.phoneNumbers[0].number;
+      if (phone) {
+        updatedForm.phone = phone.replace(/[\s-]/g, '');
+      }
     }
     
     if (contact.emails && contact.emails.length > 0) {
       updatedForm.email = contact.emails[0].email;
     }
-    
+        
     setForm(updatedForm);
     setShowContactModal(false);
   };
@@ -165,9 +176,51 @@ const AdminAddEmployee = ({ route, navigation }) => {
 
   const handleChange = (key, value) => {
     setForm((prev) => ({ ...prev, [key]: value }));
+    // Clear error when user starts typing
+    if (fieldErrors[key]) {
+      setFieldErrors(prev => ({ ...prev, [key]: false }));
+    }
   };
 
   const handleSubmit = async() => {
+    // Reset all errors first
+    setFieldErrors({
+      name: false,
+      phone: false,
+      email: false
+    });
+
+    // Validation
+    if (!form.name.trim()) {
+      setFieldErrors({ ...fieldErrors, name: true });
+      return;
+    }
+
+    if (!form.phone.trim()) {
+      setFieldErrors({ ...fieldErrors, phone: true });
+      return;
+    }
+
+    if (!form.email.trim()) {
+      setFieldErrors({ ...fieldErrors, email: true });
+      return;
+    }
+
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(form.email.trim())) {
+      setFieldErrors({ ...fieldErrors, email: true });
+      return;
+    }
+
+    // Phone number validation (basic check for at least 10 digits)
+    const phoneRegex = /^\d{10,}$/;
+    const cleanPhone = form.phone.replace(/\D/g, '');
+    if (!phoneRegex.test(cleanPhone)) {
+      setFieldErrors({ ...fieldErrors, phone: true });
+      return;
+    }
+
     setLoading(true);
     try {
       let res;
@@ -314,6 +367,7 @@ const AdminAddEmployee = ({ route, navigation }) => {
             <Ionicons name="share-social-outline" size={24} color="#fff" />
           </TouchableOpacity>
         }
+        onBackPress={() => navigation.goBack()}
       />
       <ScrollView 
         contentContainerStyle={styles.container}
@@ -327,42 +381,46 @@ const AdminAddEmployee = ({ route, navigation }) => {
           <Text style={styles.contactButtonText}>Select from Contacts</Text>
         </TouchableOpacity>
 
+        <Text style={styles.sectionTitle}>Contact Info</Text>
         <InputField
-          label="Name"
+          placeholder="Enter full name"
           icon="person-outline"
           value={form.name}
           onChangeText={(val) => handleChange('name', val)}
-          placeholder="Enter full name"
+          error={fieldErrors.name}
+          errorMessage="Name is required"
         />
         <InputField
-          label="Phone Number"
+          placeholder="Enter phone number"
           icon="call-outline"
           value={form.phone}
           onChangeText={(val) => handleChange('phone', val)}
-          placeholder="Enter phone number"
           keyboardType="phone-pad"
+          error={fieldErrors.phone}
+          errorMessage="Phone is required"
         />
         <InputField
-          label="Email"
+          placeholder="Enter email"
           icon="mail-outline"
           value={form.email}
           onChangeText={(val) => handleChange('email', val)}
-          placeholder="Enter email"
           keyboardType="email-address"
+          error={fieldErrors.email}
+          errorMessage="Email is required"
         />
+
+        <Text style={styles.sectionTitle}>Job Details</Text>
         <InputField
-          label="Department"
-          icon="briefcase-outline"
+          placeholder="Enter department"
+          icon="business-outline"
           value={form.department}
           onChangeText={(val) => handleChange('department', val)}
-          placeholder="Enter department"
         />
         <InputField
-          label="Designation"
-          icon="briefcase-outline"
+          placeholder="Designation"
+          icon="id-card-outline"
           value={form.designation}
           onChangeText={(val) => handleChange('designation', val)}
-          placeholder="Enter designation"
         />
 
         <TouchableOpacity style={styles.button} onPress={handleSubmit}>
@@ -438,27 +496,17 @@ const styles = StyleSheet.create({
   },
   container: {
     paddingVertical: 20,
-    // paddingHorizontal: 10,
-    // backgroundColor: '#d3d3d3',
+    paddingHorizontal: 20,
     flexGrow: 1,
-    borderRadius: 10,
-    marginVertical: 10,
-    marginHorizontal: 20,
   },
-  title: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#222',
-    marginBottom: 20,
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 600,
+    color: '#333',
+    marginVertical: 15,
   },
   inputContainer: {
-    marginBottom: 10,
-  },
-  label: {
-    fontSize: 16,
-    color: '#444',
-    marginBottom: 6,
-    fontWeight: '500',
+    marginBottom: 15,
   },
   inputWrapper: {
     flexDirection: 'row',
@@ -466,41 +514,39 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 10,
     paddingHorizontal: 12,
-    paddingVertical: Platform.OS === 'ios' ? 14 : 5,
+    paddingVertical: Platform.OS === 'ios' ? 14 : 10,
     borderWidth: 1,
     borderColor: '#ddd',
     shadowColor: '#000',
-    shadowOpacity: 0.03,
+    shadowOpacity: 0.05,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
     elevation: 2,
   },
   icon: {
-    marginRight: 8,
+    marginRight: 10,
   },
   input: {
     flex: 1,
     fontSize: 16,
-    color: '#222',
+    color: '#333',
   },
   button: {
-    bottom:0,
-    marginHorizontal:0,
     backgroundColor: color.secondary,
     paddingVertical: 14,
     borderRadius: 16,
-    marginTop: 10,
-    shadowColor: '#2563eb',
-    shadowOpacity: 0.2,
+    marginTop: 25,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 10,
+    shadowRadius: 5,
     elevation: 3,
   },
   buttonText: {
     color: '#fff',
     textAlign: 'center',
     fontSize: 17,
-    fontWeight: '600',
+    fontWeight: 600,
   },
   contactButton: {
     flexDirection: 'row',
@@ -510,17 +556,17 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 16,
     marginBottom: 20,
-    shadowColor: '#2563eb',
-    shadowOpacity: 0.2,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 10,
+    shadowRadius: 5,
     elevation: 3,
   },
   contactButtonText: {
     color: '#fff',
-    marginLeft: 8,
+    marginLeft: 10,
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 600,
   },
   modalOverlay: {
     flex: 1,
@@ -571,7 +617,7 @@ const styles = StyleSheet.create({
   modalButtonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 600,
     marginLeft: 8,
   },
   contactModalContent: {
@@ -591,7 +637,7 @@ const styles = StyleSheet.create({
   },
   contactModalTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: 600,
     color: '#333',
   },
   closeButton: {
@@ -612,7 +658,7 @@ const styles = StyleSheet.create({
   },
   contactName: {
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: 500,
     color: '#333',
     marginBottom: 4,
   },
@@ -622,7 +668,15 @@ const styles = StyleSheet.create({
   },
   shareButton: {
     padding: 8,
-    marginRight: 8,
+  },
+  inputError: {
+    borderColor: '#ff0000',
+    borderWidth: 1,
+  },
+  errorText: {
+    color: '#ff0000',
+    fontSize: 12,
+    marginTop: 5,
   },
 });
 

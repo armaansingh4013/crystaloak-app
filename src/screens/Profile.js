@@ -23,6 +23,7 @@ import profile from "../assets/profile.png"
 import ImageViewer from '../components/ImageViewer';
 import Toast from 'react-native-toast-message';
 import Loader from '../Sections/Loader';
+import { Ionicons } from '@expo/vector-icons';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -192,35 +193,57 @@ const Profile = () => {
           {/* Info Sections */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Profile Info</Text>
-            <Text style={styles.info}>
-              <Text style={styles.label}>Employee Code:</Text> {data.employeeCode}
-            </Text>
-            <Text style={styles.info}>
-              <Text style={styles.label}>Full Name:</Text> {data.name}
-            </Text>
-            <Text style={styles.info}>
-              <Text style={styles.label}>Department:</Text> {data.department}
-            </Text>
-            <Text style={styles.info}>
-              <Text style={styles.label}>Designation:</Text> {data.designation}
-            </Text>
-            <Text style={styles.info}>
-              <Text style={styles.label}>Shift Timings:</Text> {data.shift}
-            </Text>
+            <View style={styles.infoRow}>
+              <Ionicons name="id-card" size={20} color="#6c47ff" style={styles.infoIcon} />
+              <Text style={styles.info}>
+                <Text style={styles.label}>Employee Code:</Text> {data.employeeCode}
+              </Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Ionicons name="person" size={20} color="#6c47ff" style={styles.infoIcon} />
+              <Text style={styles.info}>
+                <Text style={styles.label}>Full Name:</Text> {data.name}
+              </Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Ionicons name="business" size={20} color="#6c47ff" style={styles.infoIcon} />
+              <Text style={styles.info}>
+                <Text style={styles.label}>Department:</Text> {data.department}
+              </Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Ionicons name="briefcase" size={20} color="#6c47ff" style={styles.infoIcon} />
+              <Text style={styles.info}>
+                <Text style={styles.label}>Designation:</Text> {data.designation}
+              </Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Ionicons name="time" size={20} color="#6c47ff" style={styles.infoIcon} />
+              <Text style={styles.info}>
+                <Text style={styles.label}>Shift Timings:</Text> {data.shift}
+              </Text>
+            </View>
+            <TouchableOpacity onPress={() => setProfileUpdate(true)} style={styles.edit}>
+            <Text style={styles.editText}>Edit</Text>
+          </TouchableOpacity>
           </View>
 
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Contact Info</Text>
-            <Text style={styles.info}>
-              <Text style={styles.label}>Phone:</Text> {data.phoneNumber}
-            </Text>
-            <Text style={styles.info}>
-              <Text style={styles.label}>Email:</Text> {data.email}
-            </Text>
+            <View style={styles.infoRow}>
+              <Ionicons name="call" size={20} color="#6c47ff" style={styles.infoIcon} />
+              <Text style={styles.info}>
+                <Text style={styles.label}>Phone:</Text> {data.phoneNumber}
+              </Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Ionicons name="mail" size={20} color="#6c47ff" style={styles.infoIcon} />
+              <Text style={styles.info}>
+                <Text style={styles.label}>Email:</Text> {data.email}
+              </Text>
+            </View>
           </View>
-          <TouchableOpacity onPress={() => setProfileUpdate(true)} style={styles.edit}>
-            <Text style={styles.editText}>Edit ✏️</Text>
-          </TouchableOpacity>
+          
         </View>
       </ScrollView>
       <ProfileUpdateModal visible={profileUpdate} data={data} onClose={() => setProfileUpdate(false)} />
@@ -263,19 +286,21 @@ const styles = StyleSheet.create({
   },
   edit: {
     position: "absolute",
-    top: 10,
+    top: 1,
     right: 10,
-    backgroundColor: color.primary,
+    // backgroundColor: color.primary,
     padding: 10,
     borderRadius: 10
   },
   editText: {
-    color: "white"
+    fontSize:17,
+    color: "black",
+    fontWeight:400
   },
   profileImageContainer: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 120,
+    height: 120,
+    borderRadius: 100,
     marginBottom: 15,
     alignSelf: 'center',
     zIndex: 99,
@@ -284,7 +309,9 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     resizeMode: 'contain',
-    borderRadius: 50,
+    borderRadius: 100,
+    borderWidth: 2,
+    borderColor: '#fff',
   },
   plusIconContainer: {
     position: 'absolute',
@@ -338,8 +365,16 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: 700,
     color: '#111827',
+  },
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 2,
+  },
+  infoIcon: {
+    marginRight: 10,
   },
 });
 

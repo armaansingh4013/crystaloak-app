@@ -26,7 +26,57 @@ const ChatScreen = ({ route, navigation }) => {
   const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [socket, setSocket] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
   const flatListRef = useRef(null);
+
+  // Function to mark messages as read
+  const markMessagesAsRead = async () => {
+    try {
+      if (!currentUser || !socket) return;
+
+      const unreadMessages = messages.filter(
+        message => 
+          message.sender._id !== currentUser.id && 
+          !message.isRead
+      );
+
+      if (unreadMessages.length > 0) {
+        // Emit markAsRead for each unread message
+        unreadMessages.forEach(message => {
+          socket.emit('markAsRead',  message._id);
+        });
+
+        // Update local state to mark messages as read
+        setMessages(prevMessages => 
+          prevMessages.map(message => 
+            message.sender._id !== currentUser.id && !message.isRead
+              ? { ...message, isRead: true }
+              : message
+          )
+        );
+      }
+    } catch (error) {
+      console.error('Error marking messages as read:', error);
+    }
+  };
+
+  // Function to mark messages as read when scrolling
+  const handleScroll = (event) => {
+    const { contentOffset, contentSize, layoutMeasurement } = event.nativeEvent;
+    const isNearBottom = contentOffset.y + layoutMeasurement.height >= contentSize.height - 100;
+    
+    if (isNearBottom) {
+      markMessagesAsRead();
+    }
+  };
+
+  // Function to mark messages as read when content size changes (new messages loaded)
+  const handleContentSizeChange = () => {
+    setTimeout(() => {
+      markMessagesAsRead();
+      scrollToBottom();
+    }, 100);
+  };
 
   useEffect(() => {
     // Initialize socket connection
@@ -49,7 +99,7 @@ const ChatScreen = ({ route, navigation }) => {
         newSocket.on('connect', async () => {
           console.log('Connected to WebSocket server');
           const currUser = await  getUserData()
-          console.log(currUser);
+          setCurrentUser(currUser);
           
           // Authenticate the user after connection
           newSocket.emit('authenticate', currUser.id);
@@ -58,17 +108,49 @@ const ChatScreen = ({ route, navigation }) => {
         // Listen for new messages
         newSocket.on('newMessage', (message) => {
           console.log(message);
+          console.log("=============================================================")
           console.log(role, message.sender._id == user._id);
           
           if (message.sender._id == user._id  ||  message.receiver._id == user._id) {
             setMessages(prevMessages => [...prevMessages, {
               id: message._id,
+              _id: message._id,
               content: message.content,
               sender: message.sender,
-              createdAt: message.createdAt
+              receiver: message.receiver,
+              createdAt: message.createdAt,
+              isRead: false // New messages start as unread
             }]);
             setTimeout(scrollToBottom, 100);
           }
+        });
+
+        
+        // Listen for markAsRead events from server
+        newSocket.on('messageRead', (messageId) => {
+          // console.log('Message marked as read by server:', messageId);
+          // console.log('Current messages before update:', messages);
+          
+          setMessages(prevMessages => {
+            // console.log('Previous messages in setState:', prevMessages);
+            
+            // Check if any message matches the messageId
+            const matchingMessage = prevMessages.find(message => message._id === messageId);
+            // console.log('Matching message found:', matchingMessage);
+            // console.log('MessageId type:', typeof messageId);
+            // console.log('Message _id type:', matchingMessage ? typeof matchingMessage._id : 'N/A');
+            
+            const updatedMessages = prevMessages.map(message => {
+              const isMatch = message._id === messageId;
+              // console.log(`Comparing: ${message._id} === ${messageId} = ${isMatch}`);
+              return isMatch 
+                ? { ...message, isRead: true }
+                : message;
+            });
+            
+            // console.log('Updated messages:', updatedMessages);
+            return updatedMessages;
+          });
         });
 
         // Handle connection errors
@@ -98,9 +180,15 @@ const ChatScreen = ({ route, navigation }) => {
   const fetchChatHistory = async () => {
     try {
       const data = await chatController.getChatHistory(user._id);
-      console.log(data);
+      // console.log(data);
       
-      setMessages(data || []);
+      // Add isRead property to existing messages if not present
+      const messagesWithReadStatus = (data || []).map(message => ({
+        ...message,
+        isRead: message.isRead !== undefined ? message.isRead : false
+      }));
+      
+      setMessages(messagesWithReadStatus);
     } catch (error) {
       Alert.alert('Error', 'Failed to load chat history. Please try again.');
       console.error('Error fetching chat history:', error);
@@ -112,6 +200,18 @@ const ChatScreen = ({ route, navigation }) => {
   useEffect(() => {
     fetchChatHistory();
   }, [user]);
+
+  // Mark messages as read when screen is focused
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      // Small delay to ensure messages are loaded
+      setTimeout(() => {
+        markMessagesAsRead();
+      }, 500);
+    });
+
+    return unsubscribe;
+  }, [navigation, messages, socket, currentUser]);
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -134,10 +234,12 @@ const ChatScreen = ({ route, navigation }) => {
   };
 
   const sendMessage = async () => {
+    console.log('====================================');
+    console.log(newMessage);
+    console.log('====================================');
     if (newMessage.trim() === '') return;
 
     try {
-      const currentUser = await getUserData();
       const message = {
         _id: Date.now().toString(),
         content: newMessage.trim(),
@@ -149,7 +251,8 @@ const ChatScreen = ({ route, navigation }) => {
           _id: user._id,
           name: user.name
         },
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        isRead: false // Sent messages start as unread
       };
 
       // Add message to messages array immediately
@@ -162,6 +265,10 @@ const ChatScreen = ({ route, navigation }) => {
           content: newMessage.trim()
         });
       }
+      fetchChatHistory()
+      console.log('====================================');
+      console.log("success");
+      console.log('====================================');
       setTimeout(scrollToBottom, 100);
     } catch (error) {
       Alert.alert('Error', 'Failed to send message. Please try again.');
@@ -169,6 +276,49 @@ const ChatScreen = ({ route, navigation }) => {
       // Remove the optimistic message if it failed
       setMessages(prevMessages => prevMessages.filter(m => m._id !== message._id));
     }
+  };
+
+  // Function to mark a specific message as read
+  const markMessageAsRead = (messageId) => {
+    if (!currentUser || !socket) return;
+
+    const message = messages.find(m => m._id === messageId);
+    if (message && !message.isRead && message.sender._id !== currentUser.id) {
+      socket.emit('markAsRead', messageId
+       );
+
+      setMessages(prevMessages => 
+        prevMessages.map(message => 
+          message._id === messageId 
+            ? { ...message, isRead: true }
+            : message
+        )
+      );
+    }
+  };
+
+  // Function to handle message tap
+  const handleMessageTap = (messageId) => {
+    markMessageAsRead(messageId);
+  };
+
+  // Function to render message status ticks
+  const renderMessageStatus = (message) => {
+    // Check if this message was sent by the current user
+    const isSentByCurrentUser = message.sender._id === currentUser?.id;
+
+    if (isSentByCurrentUser) {
+      return (
+        <View style={styles.statusContainer}>
+          <Ionicons 
+            name={message.isRead ? "checkmark-done" : "checkmark"} 
+            size={16} 
+            color={message.isRead ? "#007AFF" : "#8E8E93"} 
+          />
+        </View>
+      );
+    }
+    return null;
   };
 
   // Add this function to format date for the divider
@@ -198,9 +348,19 @@ const ChatScreen = ({ route, navigation }) => {
   const groupMessagesByDate = (messages) => {
     const groupedMessages = [];
     let currentDate = null;
+    let hasAddedNewMessagesDivider = false;
 
     messages.forEach((message, index) => {
       const messageDate = new Date(message.createdAt).toDateString();
+      
+      // Add "New Messages" divider before the first unread message
+      if (!hasAddedNewMessagesDivider && !message.isRead && message.sender._id !== currentUser?.id) {
+        groupedMessages.push({
+          type: 'newMessages',
+          id: 'new-messages-divider'
+        });
+        hasAddedNewMessagesDivider = true;
+      }
       
       if (messageDate !== currentDate) {
         currentDate = messageDate;
@@ -232,22 +392,42 @@ const ChatScreen = ({ route, navigation }) => {
       );
     }
 
+    if (item.type === 'newMessages') {
+      return (
+        <View style={styles.newMessagesDivider}>
+          <View style={styles.newMessagesDividerLine} />
+          <Text style={styles.newMessagesDividerText}>New Messages</Text>
+          <View style={styles.newMessagesDividerLine} />
+        </View>
+      );
+    }
+
+    const isSentByCurrentUser = item.sender._id === currentUser?.id;
+
     return (
       <View
         style={[
           styles.messageContainer,
-          role === "employee" ? item.sender._id === user._id ? styles.sentMessage : styles.receivedMessage : item.sender._id != user._id ? styles.sentMessage : styles.receivedMessage,
+          isSentByCurrentUser ? styles.sentMessage : styles.receivedMessage,
         ]}
       >
-        <View
+        <TouchableOpacity
           style={[
             styles.messageBubble,
-            role === "employee" ? item.sender._id === user._id ? styles.sentBubble : styles.receivedBubble : item.sender._id != user._id ? styles.sentBubble : styles.receivedBubble,
+            isSentByCurrentUser ? styles.sentBubble : styles.receivedBubble,
+            !item.isRead && !isSentByCurrentUser && styles.unreadMessageBubble,
           ]}
+          onPress={() => handleMessageTap(item._id)}
+          activeOpacity={0.8}
         >
           <Text style={styles.messageText}>{item.content}</Text>
-          <Text style={styles.timestamp}>{new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
-        </View>
+          <View style={styles.messageFooter}>
+            <Text style={styles.timestamp}>
+              {new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </Text>
+            {isSentByCurrentUser && renderMessageStatus(item)}
+          </View>
+        </TouchableOpacity>
       </View>
     );
   };
@@ -274,8 +454,9 @@ const ChatScreen = ({ route, navigation }) => {
                 renderItem={renderItem}
                 keyExtractor={(item) => item.id || item._id}
                 contentContainerStyle={styles.messagesList}
-                onContentSizeChange={scrollToBottom}
+                onContentSizeChange={handleContentSizeChange}
                 onLayout={scrollToBottom}
+                onScroll={handleScroll}
               />
             )}
           </View>
@@ -352,7 +533,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: 'rgba(255, 255, 255, 0.7)',
     marginTop: 4,
-    alignSelf: 'flex-end',
   },
   inputContainer: {
     height: '20%',
@@ -400,7 +580,38 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#8E8E93',
     marginHorizontal: 8,
-    fontWeight: '500',
+    fontWeight: 500,
+  },
+  statusContainer: {
+    marginLeft: 8,
+  },
+  messageFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    marginTop: 4,
+  },
+  newMessagesDivider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 16,
+    paddingHorizontal: 16,
+  },
+  newMessagesDividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#007AFF',
+  },
+  newMessagesDividerText: {
+    fontSize: 14,
+    color: '#007AFF',
+    marginHorizontal: 8,
+    fontWeight: 'bold',
+  },
+  unreadMessageBubble: {
+    borderWidth: 2,
+    borderColor: '#007AFF',
   },
 });
 

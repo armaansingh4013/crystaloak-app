@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: 700,
     color: '#333',
     marginBottom: 12,
   },
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
   headerCell: {
     flex: 1,
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: 700,
     color: '#333',
   },
   tableRow: {
@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
   footerCell: {
     flex: 1,
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: 700,
     color: color.primary,
   },
 });

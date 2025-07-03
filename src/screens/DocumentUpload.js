@@ -287,7 +287,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 600,
     marginBottom: 8,
     color: '#333',
   },
@@ -376,7 +376,7 @@ const styles = StyleSheet.create({
   getStartedText: {
     color: '#fff',
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: 700,
   },
 });
 

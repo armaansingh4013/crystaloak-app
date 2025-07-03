@@ -737,7 +737,7 @@ const AdminEditEmployee = ({ route, navigation }) => {
           {currentImageType === 'profile' ? (
             formData.profileImage ? (
               <Image
-                source={{ uri: formData.profileImage }}
+                source={{ uri: formData.profileImage.imageUrl }}
                 style={styles.fullScreenImage}
                 resizeMode="contain"
               />
@@ -793,7 +793,7 @@ const styles = StyleSheet.create({
   value: {
     fontSize: 16,
     color: '#333',
-    fontWeight: '500',
+    fontWeight: 500,
   },
   editButton: {
     marginLeft: 10,
@@ -818,7 +818,7 @@ const styles = StyleSheet.create({
   saveButtonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 600,
   },
   resetButton: {
     flexDirection: 'row',
@@ -832,7 +832,7 @@ const styles = StyleSheet.create({
   resetButtonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 600,
     marginLeft: 8,
   },
   modalOverlay: {
@@ -949,7 +949,7 @@ const styles = StyleSheet.create({
   photoLabel: {
     fontSize: 16,
     color: '#333',
-    fontWeight: '500',
+    fontWeight: 500,
   },
   imageModalOverlay: {
     flex: 1,

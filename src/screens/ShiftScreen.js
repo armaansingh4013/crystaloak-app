@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
   },
   shiftName: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: 600,
     color: '#333',
   },
   defaultBadge: {
@@ -265,7 +265,7 @@ const styles = StyleSheet.create({
   defaultText: {
     color: '#fff',
     fontSize: 12,
-    fontWeight: '500',
+    fontWeight: 500,
   },
   shiftTime: {
     fontSize: 16,
@@ -305,7 +305,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 20,
-    fontWeight: '600',
+    fontWeight: 600,
     color: '#333',
   },
   closeButton: {
@@ -364,7 +364,7 @@ const styles = StyleSheet.create({
   addButtonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 600,
   },
 });
 

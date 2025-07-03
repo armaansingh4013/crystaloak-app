@@ -133,15 +133,19 @@ const AdminReport = () => {
     const employee = people.find(p => p._id === selectedPerson);
     if (!employee || !data) return '';
 
-    // Convert logo to base64
-    // const logoPath = require('../assets/DarkLogo.png');
-    // const logoBase64 = await FileSystem.readAsStringAsync(logoPath, {
-    //   encoding: FileSystem.EncodingType.Base64,
-    // });
     const logoAsset = Asset.fromModule(require('../assets/DarkLogo.png'));
-    await logoAsset.downloadAsync(); // Make sure it's available locally
-    
-    const logoBase64 = await FileSystem.readAsStringAsync(logoAsset.localUri, {
+    await logoAsset.downloadAsync();
+
+    let logoUri = logoAsset.localUri || logoAsset.uri;
+
+    // If the uri is not a file URI, copy it to FileSystem cache
+    if (!logoUri.startsWith('file://')) {
+      const newPath = FileSystem.cacheDirectory + 'DarkLogo.png';
+      await FileSystem.copyAsync({ from: logoUri, to: newPath });
+      logoUri = newPath;
+    }
+
+    const logoBase64 = await FileSystem.readAsStringAsync(logoUri, {
       encoding: FileSystem.EncodingType.Base64,
     });
     const formatTime = (dateString) => {
@@ -335,7 +339,8 @@ const AdminReport = () => {
       Toast.show({
         type: 'error',
         text1: 'Error',
-        text2: 'Failed to generate or share PDF',
+        text2:error.message,
+        // text2: 'Failed to generate or share PDF',
         position: 'top',
       });
     } finally {
@@ -407,7 +412,7 @@ const AdminReport = () => {
       />
       {loading&&<Loader/>}
       <ScrollView ref={scrollViewRef} style={styles.container}>
-        {/* <Text style={styles.h eading}>Report</Text> */}
+        {/* <Text style={styles.heading}>Report</Text> */}
 
         {/* Person Selector */}
         <Text style={styles.label}>Select Person</Text>
@@ -439,7 +444,7 @@ const AdminReport = () => {
               }}
               style={styles.dateInput}
             >
-              <Text>{startDate.toDateString()}</Text>
+              <Text style={{color:"black"}}>{startDate.toDateString()}</Text>
             </TouchableOpacity>
             {Platform.OS === 'android' && showStartPicker && (
               <DateTimePicker
@@ -466,7 +471,7 @@ const AdminReport = () => {
               }}
               style={styles.dateInput}
             >
-              <Text>{endDate.toDateString()}</Text>
+              <Text style={{color:"black"}}>{endDate.toDateString()}</Text>
             </TouchableOpacity>
             {Platform.OS === 'android' && showEndPicker && (
               <DateTimePicker
@@ -488,10 +493,10 @@ const AdminReport = () => {
 
         {/* Info Boxes */}
         <View style={styles.infoContainer}>
-          <View style={styles.infoBox}><Text style={styles.text}>Total Days </Text> <Text style={styles.text}> {data.summary ? data.summary.totalDays : 0}</Text></View>
-          <View style={styles.infoBox}><Text style={styles.text}>Absent Days </Text> <Text style={styles.text}> {data.summary ? data.summary.absentDays : 0}</Text></View>
-          <View style={styles.infoBox}><Text style={styles.text}>Holiday </Text> <Text style={styles.text}>{data.summary ? data.summary.holidayDays : 0}</Text></View>
-          <View style={styles.infoBox}><Text style={styles.text}>Present Days </Text> <Text style={styles.text}> {data.summary ? data.summary.presentDays : 0}</Text></View>
+          <View style={styles.infoBox}><Text style={styles.text}>Total Days </Text><Text style={styles.text}> {data.summary ? data.summary.totalDays : 0}</Text></View>
+          <View style={styles.infoBox}><Text style={styles.text}>Absent Days </Text><Text style={styles.text}> {data.summary ? data.summary.absentDays : 0}</Text></View>
+          <View style={styles.infoBox}><Text style={styles.text}>Holiday </Text><Text style={styles.text}>{data.summary ? data.summary.holidayDays : 0}</Text></View>
+          <View style={styles.infoBox}><Text style={styles.text}>Present Days </Text><Text style={styles.text}> {data.summary ? data.summary.presentDays : 0}</Text></View>
         </View>
 
         {/* Calendar */}
@@ -539,15 +544,15 @@ const styles = StyleSheet.create({
   },
   heading: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontWeight: 700,
     marginBottom: 15,
   },
   label: {
     marginTop: 5,
     marginBottom: 5,
-    fontWeight: "bold",
+    fontWeight: 700,
     fontSize: 18,
-    color: "#333",
+    color: '#333',
   },
   dateRow: {
     flex: 1,
@@ -573,11 +578,13 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
     borderRadius: 8,
     padding: 12,
+    color:"black",
     backgroundColor: "#fff",
   },
   dropdownContainer: {
     borderColor: "#ccc",
     borderRadius: 8,
+    color:"black"
   },
   dateBox: {
     borderWidth: 1,
@@ -613,7 +620,7 @@ const styles = StyleSheet.create({
   subHeading: {
     marginTop: 20,
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: 600,
   },
   calendar: {
     marginVertical: 15,
@@ -682,7 +689,7 @@ const styles = StyleSheet.create({
   iosButtonText: {
     color: 'white',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 600,
   },
   modalContainer: {
     flex: 1,
@@ -703,7 +710,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: 600,
     color: '#333',
   },
   modalFooter: {
@@ -721,7 +728,7 @@ const styles = StyleSheet.create({
   modalButtonText: {
     color: 'white',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 600,
   },
   iosDatePicker: {
     height: 200,

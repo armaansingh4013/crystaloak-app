@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
   },
   statValue: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontWeight: 700,
     color: "#333",
   },
   siteContainer: {
@@ -192,19 +192,21 @@ const styles = StyleSheet.create({
   siteTitle: {
     fontSize: 24,
     textAlign: "center",
-    fontWeight: "bold",
+    fontWeight: 700,
     marginBottom: 8,
+    color:"black"
   },
   siteRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     paddingVertical: 4,
     paddingHorizontal: 8,
-    fontWeight: "bold"
+    fontWeight: 700
   },
   siteContent: {
-    fontWeight: "bold",
-    fontSize: 15
+    fontWeight: 600,
+    fontSize: 15,
+    color:"black"
   },
   imageSection: {
     marginTop: 10,
@@ -213,7 +215,7 @@ const styles = StyleSheet.create({
   imageSectionTitle: {
     fontSize: 24,
     textAlign: "center",
-    fontWeight: "bold",
+    fontWeight: 700,
     marginBottom: 10,
   },
   imageRows: {
@@ -242,7 +244,7 @@ const styles = StyleSheet.create({
   nameText: {
     flex: 1,
     fontSize: 16,
-    fontWeight: "semiBold"
+    fontWeight: 600
   },
   siteText: {
     flex: 1,

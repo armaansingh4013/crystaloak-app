@@ -117,7 +117,16 @@ const PaySlipView = ({ route, navigation }) => {
   const generatePDF = async () => {
     try {
       setIsGeneratingPDF(true);
-      
+
+      // Load and convert logo to base64 (like AdminReport)
+      const logoAsset = require('../assets/DarkLogo.png');
+      const { Asset } = await import('expo-asset');
+      const logo = Asset.fromModule(logoAsset);
+      await logo.downloadAsync();
+      const logoBase64 = await FileSystem.readAsStringAsync(logo.localUri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
       // Create HTML content for the PDF
       const htmlContent = `
         <!DOCTYPE html>
@@ -128,247 +137,292 @@ const PaySlipView = ({ route, navigation }) => {
               body {
                 font-family: Arial, sans-serif;
                 margin: 0;
-                padding: 20px;
+                padding: 0;
                 width: 842px;
-                height: 1191px;
+                min-height: 1191px;
+                background: #fff;
+              }
+              .paySlipContent {
+                width: 842px;
+                min-height: 1191px;
+                background: #fff;
+                padding: 20px;
+                margin: 0;
                 border: 2px solid #0000cc;
+                box-sizing: border-box;
               }
-              .header-row {
-                background-color: #0000cc;
-                color: white;
-                padding: 12px;
-                margin-bottom: 2px;
+              .paySlipInnerContent {
+                border: 2px solid #0000cc;
+                padding: 0;
+              }
+              .letterhead {
                 display: flex;
+                align-items: center;
+                justify-content: space-around;
+                padding: 10px;
+                border-bottom: 1px solid #0000cc;
+                background: #fff;
               }
-              .header-cell {
+              .logo {
+                width: 150px;
+                height: 150px;
+                margin-left: 60px;
+              }
+              .companyInfo {
                 flex: 1;
                 text-align: center;
-                font-weight: bold;
-                font-size: 14px;
               }
-              .right-aligned-cell {
-                flex: 1;
-                text-align: right;
-                font-size: 14px;
-                padding: 0 8px;
-              }
-              .right-aligned-bold-cell {
-                flex: 1;
-                text-align: right;
+              .companyName {
+                font-size: 30px;
                 font-weight: bold;
-                font-size: 14px;
-                padding: 0 8px;
+                color: #0000cc;
+                margin-bottom: 5px;
               }
-              .right-aligned-header {
-                flex: 1;
-                text-align: right;
-                font-weight: bold;
+              .companyAddress, .companyContact {
                 font-size: 14px;
+                color: #333;
+                margin-bottom: 2px;
+              }
+              .rowHeader {
+                display: flex;
+                background: #0000cc;
+                padding: 1px;
+                margin-bottom: 2px;
+              }
+              .headerCell {
+                flex: 1;
+                color: #fff;
+                font-weight: bold;
+                text-align: center;
+                font-size: 14px;
+                border-right: 2px solid #fff;
+                padding: 4px 0;
               }
               .row {
                 display: flex;
-                padding: 8px 0;
-                border-bottom: 1px solid #eee;
               }
               .cell {
-                flex: 1;
                 font-size: 14px;
-                padding: 0 8px;
-              }
-              .bold-cell {
-                flex: 1;
+                padding: 8px;
+                text-align: center;
                 font-weight: bold;
-                font-size: 14px;
-                padding: 0 8px;
+                width: 20%;
               }
-              .sub-header {
-                background-color: #0000cc;
-                color: white;
-                padding: 12px;
-                margin-top: 15px;
-                margin-bottom: 2px;
+              .sectionContainer {
                 display: flex;
+                flex-direction: row;
+                width: 100%;
               }
-              .sub-header-cell {
-                flex: 1;
-                font-weight: bold;
+              .leftSection {
+                width: 60%;
+              }
+              .rightSection {
+                width: 40%;
+                border-left: 1px solid #0000cc;
+              }
+              .sectionHeader {
+                display: flex;
+                justify-content: center;
+                background: #0000cc;
+                padding: 1px;
+              }
+              .headerText {
                 font-size: 14px;
-              }
-              .half-column {
+                font-weight: bold;
+                color: #fff;
                 flex: 1;
-                padding: 12px;
+                text-align: center;
               }
-              .comment-box {
+              .paymentRow, .deductionRow, .totalsRow, .yearToDateRow {
+                display: flex;
+                justify-content: space-between;
+                padding: 10px;
+              }
+              .paymentLabel, .deductionLabel, .totalLabel, .yearToDateLabel {
+                font-size: 14px;
+                width: 65%;
+              }
+              .paymentAmount, .deductionAmount, .totalAmount, .yearToDateAmount {
+                font-size: 14px;
+                width: 35%;
+                text-align: right;
+              }
+              .bold {
+                font-weight: bold;
+              }
+              .commentSection {
+                border-bottom: 1px solid #0000cc;
+              }
+              .commentBox {
                 padding: 15px;
                 border: 1px solid #ccc;
-                margin-top: 15px;
-                background-color: #f9f9f9;
+                background: #f9f9f9;
+              }
+              .addressSection {
+                padding: 15px;
               }
               .footer {
                 display: flex;
-                border-top: 1px solid #000;
-                margin-top: 30px;
-                padding: 15px 0;
+                border: 1px solid #0000cc;
               }
-              .net-pay {
+              .leftHalfColumn {
+                width: 60%;
+                padding: 12px;
+                border-right: 1px solid #0000cc;
+              }
+              .rightHalfColumn {
+                flex: 1;
+                align-items: center;
+                justify-content: center;
+                padding: 12px;
+                text-align: center;
+              }
+              .netPay {
                 font-weight: bold;
                 font-size: 18px;
-                text-align: right;
-              }
-              .first-column {
-                width: 20%;
-                font-size: 14px;
-                padding: 0 8px;
-              }
-              .second-column {
-                width: 10%;
-                font-size: 14px;
-                padding: 0 8px;
-              }
-              .third-column {
-                width: 10%;
-                font-size: 14px;
-                padding: 0 8px;
-              }
-              .fourth-column {
-                width: 10%;
-                font-size: 14px;
-                padding: 0 8px;
-              }
-              .fifth-column {
-                width: 20%;
-                font-size: 14px;
-                padding: 0 8px;
-              }
-              .sixth-column {
-                width: 20%;
-                font-size: 14px;
-                padding: 0 8px;
-                text-align: right;
+                text-align: center;
               }
             </style>
           </head>
           <body>
-            <div class="header-row">
-              <div class="header-cell">Works No</div>
-              <div class="header-cell">Employee</div>
-              <div class="header-cell">Department</div>
-              <div class="header-cell">Date</div>
-              <div class="header-cell">National Insurance No.</div>
-            </div>
-            <div class="row">
-              <div class="cell">${employeeData.employeeCode}</div>
-              <div class="cell">${employeeData.name}</div>
-              <div class="cell"></div>
-              <div class="cell">${formatTodayDate()}</div>
-              <div class="cell">${employeeData.insuranceNumber || ""}</div>
-            </div>
-
-            <div class="sub-header">
-              <div class="sub-header-cell">Payments</div>
-              <div class="sub-header-cell">Units</div>
-              <div class="sub-header-cell">Rate</div>
-              <div class="sub-header-cell">Amount</div>
-              <div class="sub-header-cell">Deductions</div>
-              <div class="right-aligned-header">Amount</div>
-            </div>
-
-            <div class="row">
-              <div class="first-column">Basic Pay</div>
-              <div class="second-column"></div>
-              <div class="third-column"></div>
-              <div class="fourth-column">£${data.basicPay}</div>
-              <div class="fifth-column">Income Tax</div>
-              <div class="sixth-column">£${data.incomeTax}</div>
-            </div>
-            <div class="row">
-              <div class="first-column" style="font-weight: bold;">Total Payments</div>
-              <div class="second-column"></div>
-              <div class="third-column"></div>
-              <div class="fourth-column" style="font-weight: bold;">£${data.totalPayments}</div>
-              <div class="fifth-column">National Insurance</div>
-              <div class="sixth-column">£${data.nationalInsurance}</div>
-            </div>
-            <div class="row">
-              <div class="first-column"></div>
-              <div class="second-column"></div>
-              <div class="third-column"></div>
-              <div class="fourth-column"></div>
-              <div class="fifth-column">Employee Pension</div>
-              <div class="sixth-column">£${data.employeePension}</div>
-            </div>
-            <div class="row">
-              <div class="first-column"></div>
-              <div class="second-column"></div>
-              <div class="third-column"></div>
-              <div class="fourth-column"></div>
-              <div class="fifth-column" style="font-weight: bold;">Total Deductions</div>
-              <div class="sixth-column" style="font-weight: bold;">£${data.incomeTax+data.employeeNIC+data.nationalInsurance+data.employeePension}</div>
-            </div>
-
-            <div class="sub-header">
-              <div class="sub-header-cell">Totals This Period</div>
-              <div class="sub-header-cell"></div>
-              <div class="sub-header-cell"></div>
-              <div class="sub-header-cell"></div>
-              <div class="sub-header-cell">Totals Year To Date</div>
-              <div class="right-aligned-header">Amount</div>
-            </div>
-            <div class="row">
-              <View style={styles.halfColumn}>
-                <Text>Total Payments: £{data.totalPayments}</Text>
-                <Text>Total Deductions: £{data.incomeTax+data.employeeNIC+data.nationalInsurance+data.employeePension}</Text>
-              </View>
-              <View style={[styles.halfColumn, {flex: 2}]}>
-                <View style={styles.yearToDateRow}>
-                  <Text style={styles.yearToDateLabel}>Taxable Gross Pay:</Text>
-                  <Text style={styles.rightAlignedCell}>£{data.taxableGrossPay}</Text>
-                </View>
-                <View style={styles.yearToDateRow}>
-                  <Text style={styles.yearToDateLabel}>Income Tax:</Text>
-                  <Text style={styles.rightAlignedCell}>£{data.incomeTax}</Text>
-                </View>
-                <View style={styles.yearToDateRow}>
-                  <Text style={styles.yearToDateLabel}>Employee NIC:</Text>
-                  <Text style={styles.rightAlignedCell}>£{data.employeeNIC}</Text>
-                </View>
-                <View style={styles.yearToDateRow}>
-                  <Text style={styles.yearToDateLabel}>Employer NIC:</Text>
-                  <Text style={styles.rightAlignedCell}>£{data.emloyeerNIC}</Text>
-                </View>
-                <View style={styles.yearToDateRow}>
-                  <Text style={styles.yearToDateLabel}>SMP/SPP:</Text>
-                  <Text style={styles.rightAlignedCell}>£{data.smpSpp}</Text>
-                </View>
-                <View style={styles.yearToDateRow}>
-                  <Text style={styles.yearToDateLabel}>Employee Pension:</Text>
-                  <Text style={styles.rightAlignedCell}>£{data.employeePension}</Text>
-                </View>
-                <View style={styles.yearToDateRow}>
-                  <Text style={styles.yearToDateLabel}>Employer Pension:</Text>
-                  <Text style={styles.rightAlignedCell}>£{data.employerPension}</Text>
-                </View>
-              </View>
-            </div>
-
-            <div class="sub-header">
-              <div class="sub-header-cell">Comments</div>
-            </div>
-            <div class="comment-box">
-              <div style="font-weight: bold;">${employeeData.name}</div>
-              <div>${employeeData.address}</div>
-              <div>Payment Method: BACS</div>
-            </div>
-
-            <div class="footer">
-              <div class="half-column">
-                <div style="font-weight: bold;">Crystal Oak Constructions Ltd</div>
-                <div style="font-weight: bold;">${companyAddress}</div>
-                <div style="font-weight: bold;">Tel: +44 1895854444 | Mobile: +44 7970054444</div>
-                <div style="font-weight: bold;">Email: crystaloakwork@outlook.com</div>
-              </div>
-              <div class="half-column">
-                <div class="net-pay">NET PAY £${data.totalPayments-(data.incomeTax+data.employeeNIC+data.nationalInsurance+data.employeePension)}</div>
+            <div class="paySlipContent">
+              <div class="paySlipInnerContent">
+                <div class="letterhead">
+                  <img src="data:image/png;base64,${logoBase64}" class="logo" />
+                  <div class="companyInfo">
+                    <div class="companyName">Crystal Oak Constructions Ltd</div>
+                    <div class="companyAddress">${companyAddress}</div>
+                    <div class="companyContact">Tel: +44 1895854444 | Mobile: +44 7970054444</div>
+                    <div class="companyContact">Email: crystaloakwork@outlook.com</div>
+                  </div>
+                </div>
+                <div class="rowHeader">
+                  <div class="headerCell" style="width:12%">Works No</div>
+                  <div class="headerCell" style="width:20%">Employee</div>
+                  <div class="headerCell" style="width:20%">Department</div>
+                  <div class="headerCell" style="width:18%">Date</div>
+                  <div class="headerCell" style="width:30%">National Insurance No.</div>
+                </div>
+                <div class="row">
+                  <div class="cell">${employeeData.employeeCode}</div>
+                  <div class="cell">${employeeData.name}</div>
+                  <div class="cell">${employeeData.department}</div>
+                  <div class="cell">${formatTodayDate()}</div>
+                  <div class="cell">${employeeData.insuranceNumber || ""}</div>
+                </div>
+                <div class="sectionContainer">
+                  <div class="leftSection">
+                    <div class="sectionHeader">
+                      <div class="headerText">Payments</div>
+                      <div class="headerText">Units</div>
+                      <div class="headerText">Rate</div>
+                      <div class="headerText">Amount</div>
+                    </div>
+                    <div class="paymentRow">
+                      <div class="paymentLabel">Basic Pay</div>
+                      <div class="paymentAmount">£${data.basicPay}</div>
+                    </div>
+                    <div class="paymentRow">
+                      <div class="paymentLabel bold">Total Payments</div>
+                      <div class="paymentAmount bold">£${data.totalPayments}</div>
+                    </div>
+                  </div>
+                  <div class="rightSection">
+                    <div class="sectionHeader">
+                      <div class="headerText">Deductions</div>
+                      <div class="headerText">Amount</div>
+                    </div>
+                    <div class="deductionRow">
+                      <div class="deductionLabel">Income Tax</div>
+                      <div class="deductionAmount">£${data.incomeTax}</div>
+                    </div>
+                    <div class="deductionRow">
+                      <div class="deductionLabel">National Insurance</div>
+                      <div class="deductionAmount">£${data.nationalInsurance}</div>
+                    </div>
+                    <div class="deductionRow">
+                      <div class="deductionLabel">Employee Pension</div>
+                      <div class="deductionAmount">£${data.employeePension}</div>
+                    </div>
+                    <div class="deductionRow">
+                      <div class="deductionLabel bold">Total Deductions</div>
+                      <div class="deductionAmount bold">£${data.incomeTax+data.employeeNIC+data.nationalInsurance+data.employeePension}</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="sectionContainer">
+                  <div class="leftSection">
+                    <div class="sectionHeader">
+                      <div class="headerText">Totals This Period</div>
+                    </div>
+                    <div class="totalsRow">
+                      <div class="totalLabel">Total Payments:</div>
+                      <div class="totalAmount">£${data.totalPayments}</div>
+                    </div>
+                    <div class="totalsRow">
+                      <div class="totalLabel">Total Deductions:</div>
+                      <div class="totalAmount">£${data.incomeTax+data.employeeNIC+data.nationalInsurance+data.employeePension}</div>
+                    </div>
+                    <div class="commentSection">
+                      <div class="sectionHeader">
+                        <div class="headerText">Comments</div>
+                      </div>
+                      <div class="commentBox">
+                        <div class="bold">${employeeData.comment|| "\n"}</div>
+                        
+                      </div>
+                    </div>
+                    <div class="addressSection">
+                      <div class="bold">${employeeData.name}</div>
+                      <div>${employeeData.address}</div>
+                      <div>Payment Method: BACS</div>
+                    </div>
+                  </div>
+                  <div class="rightSection">
+                    <div class="sectionHeader">
+                      <div class="headerText">Totals Year To Date</div>
+                    </div>
+                    <div class="yearToDateRow">
+                      <div class="yearToDateLabel">Taxable Gross Pay:</div>
+                      <div class="yearToDateAmount">£${data.taxableGrossPay}</div>
+                    </div>
+                    <div class="yearToDateRow">
+                      <div class="yearToDateLabel">Income Tax:</div>
+                      <div class="yearToDateAmount">£${data.incomeTax}</div>
+                    </div>
+                    <div class="yearToDateRow">
+                      <div class="yearToDateLabel">Employee NIC:</div>
+                      <div class="yearToDateAmount">£${data.employeeNIC}</div>
+                    </div>
+                    <div class="yearToDateRow">
+                      <div class="yearToDateLabel">Employer NIC:</div>
+                      <div class="yearToDateAmount">£${data.emloyeerNIC}</div>
+                    </div>
+                    <div class="yearToDateRow">
+                      <div class="yearToDateLabel">SMP/SPP:</div>
+                      <div class="yearToDateAmount">£${data.smpSpp}</div>
+                    </div>
+                    <div class="yearToDateRow">
+                      <div class="yearToDateLabel">Employee Pension:</div>
+                      <div class="yearToDateAmount">£${data.employeePension}</div>
+                    </div>
+                    <div class="yearToDateRow">
+                      <div class="yearToDateLabel">Employer Pension:</div>
+                      <div class="yearToDateAmount">£${data.employerPension}</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="footer">
+                  <div class="leftHalfColumn">
+                    <div class="bold">Crystal Oak Constructions Ltd</div>
+                    <div class="bold">${companyAddress}</div>
+                    <div class="bold">Tel: +44 1895854444 | Mobile: +44 7970054444</div>
+                    <div class="bold">Email: crystaloakwork@outlook.com</div>
+                  </div>
+                  <div class="rightHalfColumn">
+                    <div class="netPay">NET PAY £${data.totalPayments-(data.incomeTax+data.employeeNIC+data.nationalInsurance+data.employeePension)}</div>
+                  </div>
+                </div>
               </div>
             </div>
           </body>
@@ -441,7 +495,7 @@ const PaySlipView = ({ route, navigation }) => {
             resizeMode="contain"
           />
           <View style={styles.companyInfo}>
-            <Text style={[styles.companyName,{fontWeight:"bold"}]}>Crystal Oak Constructions Ltd</Text>
+            <Text style={[styles.companyName,{fontWeight:500}]}>Crystal Oak Constructions Ltd</Text>
             <Text style={styles.companyAddress}>{companyAddress}</Text>
             <Text style={styles.companyContact}>Tel: +44 1895854444 | Mobile: +44 7970054444</Text>
             <Text style={styles.companyContact}>Email: crystaloakwork@outlook.com</Text>
@@ -533,17 +587,15 @@ const PaySlipView = ({ route, navigation }) => {
                 <Text style={[styles.headerText, {color: 'white'}]}>Comments</Text>
               </View>
               <View style={styles.commentBox}>
-                <Text style={styles.bold}>heres the comment came </Text>
-             
+                <Text style={styles.bold}>{employeeData.comment}</Text>
               </View>
             </View>
 
             {/* Address Section */}
             <View style={styles.addressSection}>
-              
-            <Text style={styles.bold}>{employeeData.name}</Text>
-          <Text>{employeeData.address}</Text>
-          <Text>Payment Method: BACS</Text>
+              <Text style={styles.bold}>{employeeData.name}</Text>
+              <Text>{employeeData.address}</Text>
+              <Text>Payment Method: BACS</Text>
             </View>
           </View>
 
@@ -852,7 +904,7 @@ const styles = StyleSheet.create({
   headerCell: {
     flex: 1,
     color: '#fff',
-    fontWeight: 'bold',
+    fontWeight: 700,
     textAlign: 'center',
     fontSize: 14,
     borderRightWidth: 2,
@@ -915,13 +967,13 @@ const styles = StyleSheet.create({
   },
   boldCell: {
     flex: 1,
-    fontWeight: 'bold',
+    fontWeight: 700,
     fontSize: 14,
     paddingHorizontal: 8,
   },
   rightAlignedBoldCell: {
     flex: 1,
-    fontWeight: 'bold',
+    fontWeight: 700,
     fontSize: 14,
     paddingHorizontal: 8,
     textAlign: 'right',
@@ -937,7 +989,7 @@ const styles = StyleSheet.create({
   },
   headerText: {
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: 700,
   },
   paymentRow: {
     flexDirection: 'row',
@@ -982,13 +1034,13 @@ const styles = StyleSheet.create({
   subHeader: {
     flex: 1,
     color: '#fff',
-    fontWeight: 'bold',
+    fontWeight: 700,
     fontSize: 14,
   },
   rightAlignedSubHeader: {
     flex: 1,
     color: '#fff',
-    fontWeight: 'bold',
+    fontWeight: 700,
     fontSize: 14,
     textAlign: 'right',
   },
@@ -1011,7 +1063,7 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
   },
   bold: {
-    fontWeight: 'bold',
+    fontWeight: 700,
     fontSize: 14,
   },
   footer: {
@@ -1020,7 +1072,7 @@ const styles = StyleSheet.create({
     borderColor: color.primary,
   },
   netPay: {
-    fontWeight: 'bold',
+    fontWeight: 700,
     fontSize: 18,
     textAlign: 'center',
   },
@@ -1055,7 +1107,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: 700,
     marginBottom: 20,
     color: '#333',
     textAlign: 'center',
@@ -1064,7 +1116,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 5,
     color: '#333',
-    fontWeight: '500',
+    fontWeight: 500,
   },
   input: {
     borderWidth: 1,
@@ -1098,7 +1150,7 @@ const styles = StyleSheet.create({
   modalButtonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: 700,
   },
   tabContainer: {
     flexDirection: 'row',
@@ -1121,7 +1173,7 @@ const styles = StyleSheet.create({
   },
   activeTabText: {
     color: color.primary,
-    fontWeight: 'bold',
+    fontWeight: 700,
   },
   headerRight: {
     flexDirection: 'row',

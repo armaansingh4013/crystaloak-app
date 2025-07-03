@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
   titleInput: {
     flex: 1,
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: 600,
     marginHorizontal: 12,
     borderBottomWidth: 1,
     borderColor: '#ccc',

@@ -335,7 +335,7 @@ const Home = () => {
           <View style={style.upperSection}>
             <View style={style.header}>
               <View>
-                <Text style={style.heading}>{data.name}</Text>
+                <Text style={[style.heading, {maxWidth: 180}]} numberOfLines={1} ellipsizeMode="tail">{data.name}</Text>
                 <Text style={style.date}>{new Date ().toDateString ()}</Text>
                 <Text style={style.address}>
                   {address ? address : 'Fetching location'}
@@ -353,7 +353,7 @@ const Home = () => {
           {attendance.isHoliday?<View style={{flex:1,justifyContent:"center",alignItems:"center"}}>
             
           <LottieView style={{height: 150, width: 150}} source={holiday} autoPlay loop/>
-<Text style={{fontSize:20,fontWeight:"bold"}}>Today is Holiday</Text>
+<Text style={{fontSize:20,fontWeight:"bold",color:"black"}}>Today is Holiday</Text>
           </View>:
           <View style={style.mainSection}>
             <View style={style.header}>
@@ -377,7 +377,7 @@ const Home = () => {
                   }
                 }}
                 disabled={attendance.canCheckOut}
-                style={{marginTop: 10,width:screenWidth*0.9 , backgroundColor:"#D3D3D3" , padding:15, borderRadius:10}}
+                style={{marginTop: 10,width:screenWidth*0.9 , backgroundColor:"#D3D3D3" ,color:"black", padding:15, borderRadius:10}}
               />}
                 {/* <DropDownPicker
                   open={siteDropdown}
@@ -560,8 +560,9 @@ const style = StyleSheet.create ({
   },
   heading: {
     fontSize: 25,
-    fontWeight: 'bold',
-    marginVertical:20
+    fontWeight: 800,
+    marginVertical:20,
+    color:"black"
   },
   picker: {height: 50, width: 150, color: 'black', zIndex: 10, elevation: 10},
   designation: {

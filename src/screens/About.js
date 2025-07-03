@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: '700',
+    fontWeight: 700,
     marginBottom: 15,
     textAlign: 'center',
     color: '#333333',
@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: 600,
     color: '#444444',
     marginBottom: 5,
   },

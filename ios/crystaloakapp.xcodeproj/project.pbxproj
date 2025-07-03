@@ -8,28 +8,28 @@
 
 /* Begin PBXBuildFile section */
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
+		2DFCE69783297AD4CC2FA38A /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 984E64FE8DC28649E071C508 /* ExpoModulesProvider.swift */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		8236262D55F2A204EF3691EC /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6869CC7FEE8FC0DF4F86E9D3 /* ExpoModulesProvider.swift */; };
+		79C1AC1AD1CA3D0463B75ECD /* libPods-crystaloakapp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C9FD86D0EC7450673CE75948 /* libPods-crystaloakapp.a */; };
+		967B5731C0657069526BE944 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = ECE11B5DC6F2B6619A27B0DE /* PrivacyInfo.xcprivacy */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
-		BC86337B90EE0F8D923DB9DD /* libPods-crystaloakapp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7014B4282308F02E54915C26 /* libPods-crystaloakapp.a */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
-		F591441D4562F7E19B9A8978 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = FCDADAEF6D8438615E35B669 /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		058FB592545503CA2CADBE6B /* Pods-crystaloakapp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-crystaloakapp.debug.xcconfig"; path = "Target Support Files/Pods-crystaloakapp/Pods-crystaloakapp.debug.xcconfig"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* crystaloakapp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = crystaloakapp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = crystaloakapp/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = crystaloakapp/Info.plist; sourceTree = "<group>"; };
-		16B479DA83BB698EA8262847 /* Pods-crystaloakapp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-crystaloakapp.debug.xcconfig"; path = "Target Support Files/Pods-crystaloakapp/Pods-crystaloakapp.debug.xcconfig"; sourceTree = "<group>"; };
-		6869CC7FEE8FC0DF4F86E9D3 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-crystaloakapp/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
-		7014B4282308F02E54915C26 /* libPods-crystaloakapp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-crystaloakapp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		8EE45CD92EC58E11D6B0D97D /* Pods-crystaloakapp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-crystaloakapp.release.xcconfig"; path = "Target Support Files/Pods-crystaloakapp/Pods-crystaloakapp.release.xcconfig"; sourceTree = "<group>"; };
+		984E64FE8DC28649E071C508 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-crystaloakapp/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = crystaloakapp/SplashScreen.storyboard; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
+		C9FD86D0EC7450673CE75948 /* libPods-crystaloakapp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-crystaloakapp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		DC497D2F214CDDC3EFB3ACA6 /* Pods-crystaloakapp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-crystaloakapp.release.xcconfig"; path = "Target Support Files/Pods-crystaloakapp/Pods-crystaloakapp.release.xcconfig"; sourceTree = "<group>"; };
+		ECE11B5DC6F2B6619A27B0DE /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = crystaloakapp/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = crystaloakapp/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* crystaloakapp-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "crystaloakapp-Bridging-Header.h"; path = "crystaloakapp/crystaloakapp-Bridging-Header.h"; sourceTree = "<group>"; };
-		FCDADAEF6D8438615E35B669 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = crystaloakapp/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -37,13 +37,31 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BC86337B90EE0F8D923DB9DD /* libPods-crystaloakapp.a in Frameworks */,
+				79C1AC1AD1CA3D0463B75ECD /* libPods-crystaloakapp.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0740AEE987E3C52E3AF2C0A3 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				058FB592545503CA2CADBE6B /* Pods-crystaloakapp.debug.xcconfig */,
+				DC497D2F214CDDC3EFB3ACA6 /* Pods-crystaloakapp.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		0F596A444B7EC5216AF8F3FC /* ExpoModulesProviders */ = {
+			isa = PBXGroup;
+			children = (
+				497035EAD3A90C43D14ACCD2 /* crystaloakapp */,
+			);
+			name = ExpoModulesProviders;
+			sourceTree = "<group>";
+		};
 		13B07FAE1A68108700A75B9A /* crystaloakapp */ = {
 			isa = PBXGroup;
 			children = (
@@ -53,7 +71,7 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				FCDADAEF6D8438615E35B669 /* PrivacyInfo.xcprivacy */,
+				ECE11B5DC6F2B6619A27B0DE /* PrivacyInfo.xcprivacy */,
 			);
 			name = crystaloakapp;
 			sourceTree = "<group>";
@@ -62,19 +80,17 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				7014B4282308F02E54915C26 /* libPods-crystaloakapp.a */,
+				C9FD86D0EC7450673CE75948 /* libPods-crystaloakapp.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		5CC1A211F0BBD093D7015DB0 /* Pods */ = {
+		497035EAD3A90C43D14ACCD2 /* crystaloakapp */ = {
 			isa = PBXGroup;
 			children = (
-				16B479DA83BB698EA8262847 /* Pods-crystaloakapp.debug.xcconfig */,
-				8EE45CD92EC58E11D6B0D97D /* Pods-crystaloakapp.release.xcconfig */,
+				984E64FE8DC28649E071C508 /* ExpoModulesProvider.swift */,
 			);
-			name = Pods;
-			path = Pods;
+			name = crystaloakapp;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -91,8 +107,8 @@
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				5CC1A211F0BBD093D7015DB0 /* Pods */,
-				D9518450B907B59594A5B027 /* ExpoModulesProviders */,
+				0740AEE987E3C52E3AF2C0A3 /* Pods */,
+				0F596A444B7EC5216AF8F3FC /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -107,14 +123,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		93A13D0F0151B2F61FCBB232 /* crystaloakapp */ = {
-			isa = PBXGroup;
-			children = (
-				6869CC7FEE8FC0DF4F86E9D3 /* ExpoModulesProvider.swift */,
-			);
-			name = crystaloakapp;
-			sourceTree = "<group>";
-		};
 		BB2F792B24A3F905000567C9 /* Supporting */ = {
 			isa = PBXGroup;
 			children = (
@@ -122,14 +130,6 @@
 			);
 			name = Supporting;
 			path = crystaloakapp/Supporting;
-			sourceTree = "<group>";
-		};
-		D9518450B907B59594A5B027 /* ExpoModulesProviders */ = {
-			isa = PBXGroup;
-			children = (
-				93A13D0F0151B2F61FCBB232 /* crystaloakapp */,
-			);
-			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -140,13 +140,13 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "crystaloakapp" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				D0B5EE4C3BDAFBFC88586406 /* [Expo] Configure project */,
+				C6E4A13DD9369BACD077E09C /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				E8DAB1B34A9DE1DCC39AD19F /* [CP] Embed Pods Frameworks */,
+				BE66C3441149A4DCE595C66F /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -196,7 +196,7 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				F591441D4562F7E19B9A8978 /* PrivacyInfo.xcprivacy in Resources */,
+				967B5731C0657069526BE944 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -332,7 +332,25 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-crystaloakapp/Pods-crystaloakapp-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		D0B5EE4C3BDAFBFC88586406 /* [Expo] Configure project */ = {
+		BE66C3441149A4DCE595C66F /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-crystaloakapp/Pods-crystaloakapp-frameworks.sh",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-crystaloakapp/Pods-crystaloakapp-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		C6E4A13DD9369BACD077E09C /* [Expo] Configure project */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -351,24 +369,6 @@
 			shellPath = /bin/sh;
 			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-crystaloakapp/expo-configure-project.sh\"\n";
 		};
-		E8DAB1B34A9DE1DCC39AD19F /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-crystaloakapp/Pods-crystaloakapp-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-crystaloakapp/Pods-crystaloakapp-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -377,7 +377,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				8236262D55F2A204EF3691EC /* ExpoModulesProvider.swift in Sources */,
+				2DFCE69783297AD4CC2FA38A /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -386,7 +386,7 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 16B479DA83BB698EA8262847 /* Pods-crystaloakapp.debug.xcconfig */;
+			baseConfigurationReference = 058FB592545503CA2CADBE6B /* Pods-crystaloakapp.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -422,7 +422,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 8EE45CD92EC58E11D6B0D97D /* Pods-crystaloakapp.release.xcconfig */;
+			baseConfigurationReference = DC497D2F214CDDC3EFB3ACA6 /* Pods-crystaloakapp.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;

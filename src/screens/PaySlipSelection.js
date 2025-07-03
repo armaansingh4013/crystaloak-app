@@ -357,7 +357,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: 600,
     marginBottom: 10,
     color: '#333',
   },
@@ -420,7 +420,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: 600,
     color: '#333',
   },
   modalFooter: {
@@ -438,7 +438,7 @@ const styles = StyleSheet.create({
   modalButtonText: {
     color: 'white',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 600,
   },
   iosDatePicker: {
     height: 200,

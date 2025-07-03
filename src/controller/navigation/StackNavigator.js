@@ -26,7 +26,6 @@ import DocumentUpload from '../../screens/DocumentUpload';
 import PaySlipSelection from '../../screens/PaySlipSelection';
 import PaySlipDetails from '../../screens/PaySlipDetails';
 import PaySlipView from '../../screens/PaySlipView';
-import getProfile from '../profile';
 import About from '../../screens/About';
 import Tutorial from '../../screens/Tutorial';
 import ChatListScreen from '../../screens/ChatListScreen';
@@ -47,14 +46,14 @@ const StackNavigator = () => {
       try {
         const token = await getToken();
         console.log('Token retrieved:', !!token);
-        const userData = await getProfile();
-        console.log('User data retrieved:', userData?.data?.role);
+        const userData = await getUserData();
+        console.log('User data retrieved:', userData?.role);
         
         if (token) {
-          if (userData?.data.role === 'admin') {
+          if (userData?.role === 'admin') {
             console.log('Setting route to AdminNavigator');
             setInitialRoute('AdminNavigator');
-          } else if (!userData.data.documents) {
+          } else if (!userData?.documents) {
             console.log('Setting route to DocumentUpload');
             setInitialRoute('DocumentUpload');
           } else {

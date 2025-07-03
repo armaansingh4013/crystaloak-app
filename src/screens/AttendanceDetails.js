@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: 600,
     marginBottom: 16,
     color: '#333',
   },
@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
   },
   time: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 600,
     color: '#333',
     marginBottom: 8,
   },

@@ -1,6 +1,7 @@
 // AuthContext.js
 import React, {createContext, useEffect, useState} from 'react';
-import {getToken, removeToken, storeToken} from './Storage';
+import {getToken, removeToken, storeToken, removeUserData} from './Storage';
+import {removePushToken, getDeviceInfo} from '../services/notifications';
 
 export const AuthContext = createContext ();
 
@@ -26,8 +27,23 @@ export const AuthProvider = ({children}) => {
   };
 
   const logout = async () => {
-    await removeToken ();
-    setToken (null);
+    try {
+      // Get device info to remove push token
+      const { deviceId } = await getDeviceInfo();
+      
+      // Remove push token from server
+      if (deviceId) {
+        await removePushToken(deviceId);
+      }
+    } catch (error) {
+      console.error('Error removing push token during logout:', error);
+      // Continue with logout even if push token removal fails
+    }
+    
+    // Clear local storage
+    await removeToken();
+    await removeUserData();
+    setToken(null);
   };
 
   return (

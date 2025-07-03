@@ -351,11 +351,11 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: 600,
   },
   closeText: {
     color: color.primary,
-    fontWeight: '600',
+    fontWeight: 600,
   },
   tabContainer: {
     flexDirection: 'row',
@@ -377,7 +377,7 @@ const styles = StyleSheet.create({
   },
   activeTabText: {
     color: color.primary,
-    fontWeight: 'bold',
+    fontWeight: 600,
   },
   formContainer: {
     padding: 16,
@@ -388,7 +388,7 @@ const styles = StyleSheet.create({
   },
   formTitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 600,
     marginBottom: 12,
   },
   passwordInputContainer: {
@@ -441,7 +441,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#fff',
-    fontWeight: 'bold',
+    fontWeight: 700,
   },
 });
 

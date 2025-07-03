@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: 700,
     color: '#333',
   },
   cardBody: {
@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
   },
   amount: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: 700,
     color: color.primary,
   },
   items: {

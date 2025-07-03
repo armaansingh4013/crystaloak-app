@@ -129,7 +129,7 @@ const styles = StyleSheet.create ({
   logoText: {
     color: 'white',
     fontSize: 28,
-    fontWeight: 'bold',
+    fontWeight: 800,
     textAlign: 'center',
     letterSpacing: 1,
   },
@@ -147,9 +147,10 @@ const styles = StyleSheet.create ({
   },
   loginText: {
     fontSize: 22,
-    fontWeight: '600',
+    fontWeight: 600,
     marginBottom: 20,
     textAlign: 'center',
+    color:"black"
   },
   inputWrapper: {
     flexDirection: 'row',
@@ -163,6 +164,7 @@ const styles = StyleSheet.create ({
     flex: 1,
     padding: 12,
     fontSize: 16,
+    color:"black"
   },
   loginBtn: {
     backgroundColor: color.secondary,
