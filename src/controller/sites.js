@@ -107,6 +107,9 @@ export const updateSites = async (data) => {
     });
 
     const res = await response.json();
+    console.log('====================================');
+    console.log(res);
+    console.log('====================================');
     if (!response.ok) {
       throw new Error(res.message || 'Fetching failed');
     }

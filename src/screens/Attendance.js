@@ -13,7 +13,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, FlatList, StyleSheet, ScrollView, RefreshControl } from "react-native";
 import { userAttendance } from "../controller/attendance";
-import { getUserData } from "../components/Storage";
+import { getUserData, getAttendanceData, storeAttendanceData } from "../components/Storage";
 import AttendanceCart from "../Sections/AttendanceCard";
 import Header from "../Sections/Header";
 import Loader from "../Sections/Loader";
@@ -28,27 +28,46 @@ const Attendance = () => {
   const[loading,setLoading] = useState(true)
   const [refreshing,setRefreshing] = useState(false)
   useEffect(() => {
-   
-    fetchAttendance()
-  
-  }, [])
-  const onRefresh=()=>{
-    setRefreshing(true)
-    fetchAttendance()
-  }
-  const fetchAttendance = async ()=>{
-      const user = await getUserData()
-      const res = await userAttendance(user.id)
-      
-      setData(res.data)
-      setLoading(false)
-      setRefreshing(false)
+    loadFromStorageAndFetch();
+  }, []);
+
+  const loadFromStorageAndFetch = async () => {
+    setLoading(true);
+    // 1. Load from storage first
+    const cached = await getAttendanceData();
+    if (cached) {
+      setData(cached);
+      setLoading(false);
     }
+    // 2. Fetch from API in background
+    fetchAttendance(true);
+  };
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchAttendance();
+  };
+
+  // fetchAttendance: if background, don't set loading true
+  const fetchAttendance = async (background = false) => {
+    try {
+      const user = await getUserData();
+      const res = await userAttendance(user._id);
+      setData(res.data);
+      setLoading(false);
+      setRefreshing(false);
+      // Update storage
+      await storeAttendanceData(res.data);
+    } catch (e) {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
   return (
     <View style={styles.container}>
 {loading&&<Loader message="Loading Past Attendance"/>}
       <Header title="Attendance" />
-      {data.length <=0?<View style={{flex:1,justifyContent:"center",alignItems:"center"}}>
+      {data&&data.length <=0?<View style={{flex:1,justifyContent:"center",alignItems:"center"}}>
 <Text style={{fontSize:20,fontWeight:"bold"}}>Not Attendance Marked Yet</Text>
       </View>
       :<View style={styles.preview}>

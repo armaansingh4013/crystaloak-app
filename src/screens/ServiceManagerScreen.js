@@ -10,12 +10,13 @@ import {
   StyleSheet,
   Alert,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 import Header from '../Sections/Header';
 import color from "../styles/globals"
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import uploadPhotos from '../controller/photos';
 import { addService, getService, updateService } from '../controller/website/services';
 import mime from 'mime';
@@ -31,9 +32,19 @@ const ServiceManagerScreen = () => {
   const [images, setImages] = useState([]);
   const [editingServiceId, setEditingServiceId] = useState(null);
   const [refreshing,setRefreshing] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
+  
   useEffect(() => {
     fetchData()
   }, [])
+  
+  // Add focus effect to refresh data when screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchData();
+    }, [])
+  );
+  
   const onRefresh = ()=>{
     setRefreshing(true)
     fetchData()
@@ -63,61 +74,59 @@ const ServiceManagerScreen = () => {
       Alert.alert('Error', 'Please enter a name and add at least one image.');
       return;
     }
-    if (editingServiceId) {
+    
+    setIsLoading(true);
+    
+    try {
+      if (editingServiceId) {
+        
+        const addImages = images.filter(img => typeof img === 'object' && img.uri);
+        const keepImages = images.filter(img => typeof img === 'string'); // URLs
+        const removeImages = originalServerImages.filter(orig =>
+          !keepImages.includes(orig)
+        );
+        
       
-      const addImages = images.filter(img => typeof img === 'object' && img.uri);
-      const keepImages = images.filter(img => typeof img === 'string'); // URLs
-      const removeImages = originalServerImages.filter(orig =>
-        !keepImages.includes(orig)
-      );
-      
-  
-      // Upload only new images
-      const formData = new FormData();
-      for (const file of addImages) {
-        const fileType = mime.getType(file.uri) || 'image/jpeg';
-        formData.append('photos', {
-          uri: file.uri,
-          name: `photo_${Date.now()}.${mime.getExtension(fileType) || 'jpg'}`,
-          type: fileType,
-        });
-      }
-  
-      try {
+        // Upload only new images
+        const formData = new FormData();
+        for (const file of addImages) {
+          const fileType = mime.getType(file.uri) || 'image/jpeg';
+          formData.append('photos', {
+            uri: file.uri,
+            name: `photo_${Date.now()}.${mime.getExtension(fileType) || 'jpg'}`,
+            type: fileType,
+          });
+        }
+    
         let uploaded = { data: { paths: [] } };
         if (addImages.length > 0) {
           uploaded = await uploadPhotos(formData);
         }
-  
+    
         const updatePayload = {
           id: editingServiceId,
           name,
           addImages: uploaded.data.paths, // new image paths
           removeImages, // old paths to delete
         };
-  
+    
         // Here you should call updateService(updatePayload)
         const res = await updateService(updatePayload)
         Alert.alert('Service updated');
         fetchData(); // refetch after update
-      } catch (err) {
-        console.error("Update error: ", err);
-        Alert.alert("Update failed");
+      } else {
+      const formData = new FormData();
+
+      for (const file of images) {
+        const base64Uri = file.uri;
+        const fileType = mime.getType(base64Uri) || 'image/jpeg';
+
+        formData.append('photos', {
+          uri: base64Uri,
+          name: `photo_${Date.now()}.${mime.getExtension(fileType) || 'jpg'}`,
+          type: fileType,
+        });
       }
-    } else {
-    const formData = new FormData();
-
-    for (const file of images) {
-      const base64Uri = file.uri;
-      const fileType = mime.getType(base64Uri) || 'image/jpeg';
-
-      formData.append('photos', {
-        uri: base64Uri,
-        name: `photo_${Date.now()}.${mime.getExtension(fileType) || 'jpg'}`,
-        type: fileType,
-      });
-    }
-    try {
 
       const res = await uploadPhotos(formData);
       
@@ -127,19 +136,21 @@ const ServiceManagerScreen = () => {
       await addService(data);
       Alert.alert('Upload Successful', 'Your images have been uploaded.');
       setImages([]);
+        const newService = {
+          id: Date.now().toString(),
+          name,
+          images,
+        };
+        setServices([...services, newService]);
+      }
+      fetchData()
+      resetModal();
     } catch (error) {
       console.error('Upload failed:', error);
       Alert.alert('Upload failed', 'Check console for details.');
+    } finally {
+      setIsLoading(false);
     }
-      const newService = {
-        id: Date.now().toString(),
-        name,
-        images,
-      };
-      setServices([...services, newService]);
-    }
-    fetchData()
-    resetModal();
   };
 
   const resetModal = () => {
@@ -228,18 +239,21 @@ const ServiceManagerScreen = () => {
               </View>
 
               <View style={styles.modalButtons}>
-                <TouchableOpacity onPress={openImagePicker} style={styles.modalButton}>
+                <TouchableOpacity onPress={openImagePicker} style={styles.modalButton} disabled={isLoading}>
                   <Ionicons name="images-outline" size={20} color={color.primary} />
                   <Text style={styles.modalButtonText}>Select Images</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={handleAddOrUpdate} style={[styles.modalButton, { backgroundColor: color.secondary }]}>
-                  {/* <Ionicons name="checkmark-circle" size={20} color={color.primary} /> */}
-                  <Text style={styles.modalButtonText}>{editingServiceId ? 'Update' : 'Add'}</Text>
+                <TouchableOpacity onPress={handleAddOrUpdate} style={[styles.modalButton, { backgroundColor: color.secondary }]} disabled={isLoading}>
+                  {isLoading ? (
+                    <ActivityIndicator size="small" color="#fff" />
+                  ) : (
+                    <Text style={styles.modalButtonText}>{editingServiceId ? 'Update' : 'Add'}</Text>
+                  )}
                 </TouchableOpacity>
               </View>
 
-              <TouchableOpacity onPress={resetModal} style={styles.closeButton}>
+              <TouchableOpacity onPress={resetModal} style={styles.closeButton} disabled={isLoading}>
                 <Text style={styles.closeButtonText}>Cancel</Text>
               </TouchableOpacity>
             </View>

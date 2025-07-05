@@ -16,7 +16,7 @@ import {
 import color from '../styles/globals';
 import {CameraView, CameraType, Camera} from 'expo-camera';
 import * as Location from 'expo-location';
-import {getUserData, removeToken} from '../components/Storage';
+import {getUserData, removeToken, storeUserData, getSitesData, storeSitesData, getAttendanceStatusStorage, storeAttendanceStatus} from '../components/Storage';
 import getProfile from '../controller/profile';
 import {
   attendanceStatus,
@@ -74,45 +74,73 @@ const Home = () => {
     fetchData();
   }, []);
   const fetchData = async()=>{
-    try {
-      setLoading(true);
-      const res = await getProfile ();
-      const sitesRes = await getEnabledSites()
-      setSites(sitesRes.data)
-      if (res.success) {
-        setData (res.data);
-        await getAttendanceStatus(res.data._id);
-      } else {
-        // await logout()
-        // navigation.replace("Landing")
+    setLoading(true);
+    // 1. Render from storage first (if available)
+    let profile = await getUserData();
+    if (profile) setData(profile);
+    let sitesList = await getSitesData();
+    if (sitesList) setSites(sitesList);
+    let attendanceStatusData = await getAttendanceStatusStorage();
+    if (attendanceStatusData) {
+      setAttendace(attendanceStatusData);
+      if (attendanceStatusData.checkIn) {
+        const checkInAddressString = await getAddressString(`${attendanceStatusData.checkIn.location.coordinates[0]} ${attendanceStatusData.checkIn.location.coordinates[1]}`);
+        setCheckInAddress(checkInAddressString);
+        if (attendanceStatusData.canCheckOut) {
+          setSelectedSite(attendanceStatusData.siteId);
+        }
       }
-      const {
-        status: cameraStatus,
-      } = await Camera.requestCameraPermissionsAsync ();
-      setCameraPermission (cameraStatus === 'granted');
-
-      const {
-        status: locationStatus,
-      } = await Location.requestForegroundPermissionsAsync ();
-      setLocationPermission (locationStatus === 'granted');
-      let locationData = await Location.getCurrentPositionAsync ({});
-      
-      const locationString = `${locationData.coords.latitude} ${locationData.coords.longitude}`;
-      setLocation(locationString);
-      
-      // Get address string
-      const addressString = await getAddressString(locationString);
-      setAddress(addressString);
-    } catch (error) {
-      Toast.show({
-        type: 'error',
-        text1: 'Failed to load data',
-        position: 'top',
-      });
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
+      if (attendanceStatusData.checkOut) {
+        const checkOutAddressString = await getAddressString(`${attendanceStatusData.checkOut.location.coordinates[0]} ${attendanceStatusData.checkOut.location.coordinates[1]}`);
+        setCheckOutAddress(checkOutAddressString);
+      }
     }
+    // Permissions and location
+    const { status: cameraStatus } = await Camera.requestCameraPermissionsAsync();
+    setCameraPermission(cameraStatus === 'granted');
+    const { status: locationStatus } = await Location.requestForegroundPermissionsAsync();
+    setLocationPermission(locationStatus === 'granted');
+    let locationData = await Location.getCurrentPositionAsync({});
+    const locationString = `${locationData.coords.latitude} ${locationData.coords.longitude}`;
+    setLocation(locationString);
+    const addressString = await getAddressString(locationString);
+    setAddress(addressString);
+    setLoading(false);
+    setRefreshing(false);
+    // 2. Fetch from API in background and update both screen and storage
+    (async () => {
+      // Profile
+      const profileRes = await getProfile();
+      if (profileRes.success) {
+        setData(profileRes.data);
+        await storeUserData(profileRes.data);
+      }
+      // Sites
+      const sitesRes = await getEnabledSites();
+      if (sitesRes.success) {
+        setSites(sitesRes.data);
+        await storeSitesData(sitesRes.data);
+      }
+      // Attendance status
+      if (profileRes.success && profileRes.data._id) {
+        const attendanceRes = await attendanceStatus(profileRes.data._id);
+        if (attendanceRes.success) {
+          setAttendace(attendanceRes.data);
+          await storeAttendanceStatus(attendanceRes.data);
+          if (attendanceRes.data.checkIn) {
+            const checkInAddressString = await getAddressString(`${attendanceRes.data.checkIn.location.coordinates[0]} ${attendanceRes.data.checkIn.location.coordinates[1]}`);
+            setCheckInAddress(checkInAddressString);
+            if (attendanceRes.data.canCheckOut) {
+              setSelectedSite(attendanceRes.data.siteId);
+            }
+          }
+          if (attendanceRes.data.checkOut) {
+            const checkOutAddressString = await getAddressString(`${attendanceRes.data.checkOut.location.coordinates[0]} ${attendanceRes.data.checkOut.location.coordinates[1]}`);
+            setCheckOutAddress(checkOutAddressString);
+          }
+        }
+      }
+    })();
   }
   const onRefresh = ()=>{
     setRefreshing(true)
@@ -138,41 +166,6 @@ const Home = () => {
     }
     
   }
-
-  const getAttendanceStatus = async (userId) => {
-    try {
-      const res = await attendanceStatus(userId);
-      if (res.success) {
-        setAttendace(res.data);
-        // Get addresses for check-in and check-out
-        if (res.data.checkIn) {
-          const checkInAddressString = await getAddressString(`${res.data.checkIn.location.coordinates[0]} ${res.data.checkIn.location.coordinates[1]}`);
-          setCheckInAddress(checkInAddressString);
-          // setCheckInSite(res.data.checkIn.siteId);
-          // If canCheckOut is true, set the selected site to the check-in site
-          if (res.data.canCheckOut) {
-            setSelectedSite(res.data.siteId);
-          }
-        }
-        if (res.data.checkOut) {
-          const checkOutAddressString = await getAddressString(`${res.data.checkOut.location.coordinates[0]} ${res.data.checkOut.location.coordinates[1]}`);
-          setCheckOutAddress(checkOutAddressString);
-        }
-      } else {
-        Toast.show({
-          type: 'error',
-          text1: 'Failed to fetch attendance status',
-          position: 'top',
-        });
-      }
-    } catch (error) {
-      Toast.show({
-        type: 'error',
-        text1: 'Failed to fetch attendance status',
-        position: 'top',
-      });
-    }
-  };
 
   const handleOpenCamera = () => {
     if(!selectedSite){

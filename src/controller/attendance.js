@@ -142,9 +142,11 @@ export const userAttendance = async (userId) => {
         'Authorization': "Bearer "+token
       }
     });
-
+console.log(response)
     const data = await response.json();
-
+console.log('====================================');
+console.log(data);
+console.log('====================================');
     if (!response.ok) {
       throw new Error(data.message || 'Fetching failed');
     }

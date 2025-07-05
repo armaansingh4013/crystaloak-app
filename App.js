@@ -63,12 +63,11 @@ const toastConfig = {
       elevation: 5,
     }}>
       <Text style={{ color: 'green', fontSize: 16, fontWeight: 700 }}>{props.text1}</Text>
-      {props.text2 && <Text style={{ color: 'gray', fontSize: 14 }}>{props.text2}</Text>}
+      {props.text2 && <Text style={{ color: 'gray', fontSize: 12 }}>{props.text2}</Text>}
     </View>
   ),
   error: (props) => (
     <View style={{ 
-      height: 60,
       width: '90%',
       backgroundColor: 'white',
       borderRadius: 10,

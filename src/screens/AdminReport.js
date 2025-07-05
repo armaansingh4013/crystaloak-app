@@ -444,7 +444,7 @@ const AdminReport = () => {
               }}
               style={styles.dateInput}
             >
-              <Text style={{color:"black"}}>{startDate.toDateString()}</Text>
+              <Text style={{color:"black",fontSize:12}}>{startDate.toDateString()}</Text>
             </TouchableOpacity>
             {Platform.OS === 'android' && showStartPicker && (
               <DateTimePicker
@@ -471,7 +471,7 @@ const AdminReport = () => {
               }}
               style={styles.dateInput}
             >
-              <Text style={{color:"black"}}>{endDate.toDateString()}</Text>
+              <Text style={{color:"black",fontSize:12}}>{endDate.toDateString()}</Text>
             </TouchableOpacity>
             {Platform.OS === 'android' && showEndPicker && (
               <DateTimePicker
@@ -486,7 +486,7 @@ const AdminReport = () => {
             )}
           </View>
           <TouchableOpacity onPress={handleFetch} style={styles.dataButton}>
-            <Text style={{ backgroundColor: color.primary, color: "white", paddingHorizontal: 20, paddingVertical: 10, borderRadius: 10 }}>GET</Text>
+            <Text style={{ backgroundColor: color.primary, color: "white", paddingHorizontal: 12, paddingVertical: 10, borderRadius: 10 }}>Fetch</Text>
           </TouchableOpacity>
         </View>
         {dateError ? <Text style={styles.error}>{dateError}</Text> : null}

@@ -17,6 +17,8 @@ import { useNavigation } from "@react-navigation/native";
 import NoWorkImage from "../assets/NoWorkImage.png"
 import ImageViewer from '../components/ImageViewer';
 import { Ionicons } from "@expo/vector-icons";
+import Icon from 'react-native-vector-icons/FontAwesome';
+import { storeDashboardData, getDashboardData } from '../components/Storage';
 
 const screenWidth = Dimensions.get("window").width;
 const screenHeight = Dimensions.get("window").height;
@@ -30,7 +32,15 @@ const AdminHome = () => {
   const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
-    fetchData();
+    // First, load dashboard data from storage
+    (async () => {
+      const storedData = await getDashboardData();
+      if (storedData) {
+        setData(storedData);
+      }
+      // Then fetch fresh data from API
+      fetchData();
+    })();
   }, []);
 
   const onRefresh = () => {
@@ -42,6 +52,7 @@ const AdminHome = () => {
     const res = await dashboard();
     if (res.success) {
       setData(res.data);
+      await storeDashboardData(res.data);
     }
     setRefreshing(false);
   };
@@ -115,10 +126,12 @@ const AdminHome = () => {
                   >
                     <Image source={{ uri: row.employeeImage ? row.employeeImage.imageUrl : "" }} style={styles.circle} />
                   </TouchableOpacity>
-                  <Text style={styles.nameText}>{row.employeeName}</Text>
-                  <Text style={styles.siteText}>{row.siteName}</Text>
+                  <View style={styles.nameSiteContainer}>
+                    <Text style={styles.nameText}>{row.employeeName}</Text>
+                    <Text style={styles.siteText}>{row.siteName}</Text>
+                  </View>
                   <TouchableOpacity onPress={() => handleImages([data.workImagesData[index]])} style={styles.imageBtn}>
-                    <Text style={{ color: "#fff" }}>Work Image</Text>
+                    <Icon name="photo" size={30} color={color.secondary} />
                   </TouchableOpacity>
                 </View>
               ))}
@@ -242,18 +255,19 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   nameText: {
-    flex: 1,
     fontSize: 16,
     fontWeight: 600
   },
   siteText: {
-    flex: 1,
     fontSize: 16,
   },
   imageBtn: {
-    backgroundColor: color.secondary,
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 8,
+    alignItems: 'center',
+    width: 60,
+  },
+  nameSiteContainer: {
+    flexDirection: 'column',
+    marginLeft: 10,
+    flex: 1,
   },
 });

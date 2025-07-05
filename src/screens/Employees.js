@@ -176,7 +176,7 @@ const Employees = () => {
           style={styles.actionButton}
           onPress={() => openEditModal(item)}
         >
-          <Ionicons name="pencil" size={20} color="gray" />
+          <Ionicons name="pencil" size={20} color={color.primary} />
         </TouchableOpacity>
       </View>
     </View>

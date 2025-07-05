@@ -34,6 +34,7 @@ import { registerForPushNotificationsAsync, savePushToken } from '../../services
 import * as Notifications from 'expo-notifications';
 import API from '../../api';
 import { Text, View } from 'react-native';
+import AdminChatScreen from '../../screens/AdminChatScreen';
 const Stack = createStackNavigator();
 
 const StackNavigator = () => {
@@ -146,6 +147,7 @@ try{
         <Stack.Screen name="Tutorial" component={Tutorial}/>
         <Stack.Screen name="ChatList" component={ChatListScreen} />
         <Stack.Screen name="Chat" component={ChatScreen} />
+        <Stack.Screen name="AdminChat" component={AdminChatScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

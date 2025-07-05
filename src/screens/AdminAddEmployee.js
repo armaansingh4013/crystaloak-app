@@ -23,10 +23,15 @@ import Toast from 'react-native-toast-message';
 
 const screenHeight = Dimensions.get("window").height;
 
-const InputField = ({ value, onChangeText, placeholder, icon, keyboardType = 'default', editable = true, error = false, errorMessage = '' }) => (
+const InputField = ({ value, onChangeText, placeholder, icon, keyboardType = 'default', editable = true, required = false, label }) => (
   <View style={styles.inputContainer}>
-    <View style={[styles.inputWrapper, error && styles.inputError]}>
-      {icon && <Ionicons name={icon} size={20} color={error ? "#ff0000" : "#666"} style={styles.icon} />}
+    {label && (
+      <Text style={styles.inputLabel}>
+        {label} {required && <Text style={styles.requiredAsterisk}>*</Text>}
+      </Text>
+    )}
+    <View style={styles.inputWrapper}>
+      {icon && <Ionicons name={icon} size={20} color="#666" style={styles.icon} />}
       <TextInput
         style={styles.input}
         placeholder={placeholder}
@@ -37,20 +42,17 @@ const InputField = ({ value, onChangeText, placeholder, icon, keyboardType = 'de
         editable={editable}
       />
     </View>
-    {error && errorMessage && (
-      <Text style={styles.errorText}>{errorMessage}</Text>
-    )}
   </View>
 );
 
 const AdminAddEmployee = ({ route, navigation }) => {
   const { employee } = route.params || {};
   const [form, setForm] = useState({
-    name: employee?.name || '',
-    phone: employee?.phone || '',
-    email: employee?.email || '',
-    designation: employee?.designation || '',
-    department: employee?.department || ''
+    name: '',
+    phone: '',
+    email: '',
+    designation: '',
+    department: ''
   });
   const [loading, setLoading] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
@@ -58,16 +60,28 @@ const AdminAddEmployee = ({ route, navigation }) => {
   const [contacts, setContacts] = useState([]);
   const [sharePhone, setSharePhone] = useState(0);
   const [isEditMode, setIsEditMode] = useState(!!employee);
-  const [fieldErrors, setFieldErrors] = useState({
-    name: false,
-    phone: false,
-    email: false
-  });
 
   useEffect(() => {
     if (employee) {
       navigation.setOptions({
         title: 'Edit Employee'
+      });
+      // Set form data for edit mode
+      setForm({
+        name: employee.name || '',
+        phone: employee.phone || '',
+        email: employee.email || '',
+        designation: employee.designation || '',
+        department: employee.department || ''
+      });
+    } else {
+      // Reset form for add mode
+      setForm({
+        name: '',
+        phone: '',
+        email: '',
+        designation: '',
+        department: ''
       });
     }
   }, [employee, navigation]);
@@ -176,48 +190,62 @@ const AdminAddEmployee = ({ route, navigation }) => {
 
   const handleChange = (key, value) => {
     setForm((prev) => ({ ...prev, [key]: value }));
-    // Clear error when user starts typing
-    if (fieldErrors[key]) {
-      setFieldErrors(prev => ({ ...prev, [key]: false }));
-    }
   };
 
   const handleSubmit = async() => {
-    // Reset all errors first
-    setFieldErrors({
-      name: false,
-      phone: false,
-      email: false
-    });
-
     // Validation
-    if (!form.name.trim()) {
-      setFieldErrors({ ...fieldErrors, name: true });
-      return;
+    const requiredFields = {
+      name: form.name.trim(),
+      phone: form.phone.trim(),
+      email: form.email.trim()
+    };
+
+    const missingFields = [];
+    
+    if (!requiredFields.name) {
+      missingFields.push('Name');
+    }
+    
+    if (!requiredFields.phone) {
+      missingFields.push('Phone');
+    }
+    
+    if (!requiredFields.email) {
+      missingFields.push('Email');
     }
 
-    if (!form.phone.trim()) {
-      setFieldErrors({ ...fieldErrors, phone: true });
-      return;
-    }
-
-    if (!form.email.trim()) {
-      setFieldErrors({ ...fieldErrors, email: true });
+    if (missingFields.length > 0) {
+      Toast.show({
+        type: 'error',
+        text1: 'Required Fields Missing',
+        text2: `Please fill all required fields: ${missingFields.join(', ')}`,
+        position: 'top',
+      });
       return;
     }
 
     // Email format validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(form.email.trim())) {
-      setFieldErrors({ ...fieldErrors, email: true });
+    if (!emailRegex.test(requiredFields.email)) {
+      Toast.show({
+        type: 'error',
+        text1: 'Invalid Email',
+        text2: 'Please enter a valid email address',
+        position: 'top',
+      });
       return;
     }
 
     // Phone number validation (basic check for at least 10 digits)
     const phoneRegex = /^\d{10,}$/;
-    const cleanPhone = form.phone.replace(/\D/g, '');
+    const cleanPhone = requiredFields.phone.replace(/\D/g, '');
     if (!phoneRegex.test(cleanPhone)) {
-      setFieldErrors({ ...fieldErrors, phone: true });
+      Toast.show({
+        type: 'error',
+        text1: 'Invalid Phone Number',
+        text2: 'Please enter a valid phone number (at least 10 digits)',
+        position: 'top',
+      });
       return;
     }
 
@@ -383,45 +411,47 @@ const AdminAddEmployee = ({ route, navigation }) => {
 
         <Text style={styles.sectionTitle}>Contact Info</Text>
         <InputField
+          label="Full Name"
           placeholder="Enter full name"
           icon="person-outline"
           value={form.name}
           onChangeText={(val) => handleChange('name', val)}
-          error={fieldErrors.name}
-          errorMessage="Name is required"
+          required={true}
         />
         <InputField
+          label="Phone Number"
           placeholder="Enter phone number"
           icon="call-outline"
           value={form.phone}
           onChangeText={(val) => handleChange('phone', val)}
           keyboardType="phone-pad"
-          error={fieldErrors.phone}
-          errorMessage="Phone is required"
+          required={true}
         />
         <InputField
+          label="Email Address"
           placeholder="Enter email"
           icon="mail-outline"
           value={form.email}
           onChangeText={(val) => handleChange('email', val)}
           keyboardType="email-address"
-          error={fieldErrors.email}
-          errorMessage="Email is required"
+          required={true}
         />
 
         <Text style={styles.sectionTitle}>Job Details</Text>
         <InputField
+          label="Department"
           placeholder="Enter department"
           icon="business-outline"
           value={form.department}
           onChangeText={(val) => handleChange('department', val)}
         />
-        <InputField
+        {/* <InputField
+          label="Designation"
           placeholder="Designation"
           icon="id-card-outline"
           value={form.designation}
           onChangeText={(val) => handleChange('designation', val)}
-        />
+        /> */}
 
         <TouchableOpacity style={styles.button} onPress={handleSubmit}>
           <Text style={styles.buttonText}>{isEditMode ? "Update" : "Submit"}</Text>
@@ -669,14 +699,13 @@ const styles = StyleSheet.create({
   shareButton: {
     padding: 8,
   },
-  inputError: {
-    borderColor: '#ff0000',
-    borderWidth: 1,
+  inputLabel: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 5,
   },
-  errorText: {
-    color: '#ff0000',
-    fontSize: 12,
-    marginTop: 5,
+  requiredAsterisk: {
+    color: 'red',
   },
 });
 

@@ -22,6 +22,19 @@ import Loader from '../Sections/Loader';
 import holiday from "../assets/holiday.json"
 import Icon from 'react-native-vector-icons/FontAwesome';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import {
+  storeAttendanceByDate,
+  getAttendanceByDate,
+  removeAttendanceByDate
+} from '../components/Storage';
+
+// Utility to format date as YYYY-MM-DD
+const formatDateKey = (dateObj) => {
+  const yyyy = dateObj.getFullYear();
+  const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+  const dd = String(dateObj.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+};
 
 const AdminAttendance = () => {
   const [date, setDate] = useState(new Date());
@@ -32,15 +45,33 @@ const AdminAttendance = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    loadAttendanceForDate(date);
+  }, [date]);
 
-  const fetchData = async () => {
+  const loadAttendanceForDate = async (dateObj) => {
     setLoading(true);
-    const res = await getDateAttendance(date);
-    
+    const dateKey = formatDateKey(dateObj);
+    // Try to get from storage first
+    const stored = await getAttendanceByDate(dateKey);
+    if (stored) {
+      setData(stored);
+      setLoading(false);
+    } else {
+      // If not found, fetch from API
+      fetchData(dateObj, true);
+    }
+  };
+
+  // Modified fetchData to accept date and update storage
+  const fetchData = async (dateObj = date, updateStorage = false) => {
+    setLoading(true);
+    const res = await getDateAttendance(dateObj);
     if (res.success) {
       setData(res.data);
+      if (updateStorage) {
+        const dateKey = formatDateKey(dateObj);
+        await storeAttendanceByDate(dateKey, res.data);
+      }
     }
     setLoading(false);
   };
@@ -56,17 +87,13 @@ const AdminAttendance = () => {
         setDate(selectedDate);
       }
     }
-    // Automatically fetch data when date is changed from modal 'Done' button
-    if (event.type === 'set' && Platform.OS === 'ios') {
-      // This is a proxy for the 'Done' button on iOS, as there's no direct way to capture it.
-      // The fetch will happen when the user dismisses the picker.
-    }
+    // No need to fetch here, useEffect will handle
   };
 
   const handleIosPickerDone = () => {
     setShowModal(false);
     setShowPicker(false);
-    fetchData(); // Fetch data when 'Done' is pressed
+    // No need to fetch here, useEffect will handle
   };
 
   const renderDatePickerModal = () => {
@@ -134,7 +161,7 @@ const AdminAttendance = () => {
               />
             )}
           </View>
-          <TouchableOpacity onPress={fetchData}>
+          <TouchableOpacity onPress={() => fetchData(date, true)}>
             <MaterialCommunityIcons name="refresh" size={30} color={color.secondary} />
           </TouchableOpacity>
         </View>
@@ -146,14 +173,12 @@ const AdminAttendance = () => {
               {data.attendance ? data.attendance.length : 0} Present
             </Text>
           </View>
-          <TouchableOpacity onPress={fetchData}>
+          <TouchableOpacity onPress={() => fetchData(date, true)}>
             <Text style={styles.refreshText}>Refresh</Text>
           </TouchableOpacity>
         </View>
       </View>
-
       {renderDatePickerModal()}
-
       {data.isHoliday ? (
         <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
           <LottieView style={{height: 150, width: 150}} source={holiday} autoPlay loop/>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   StyleSheet,
   ScrollView,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
@@ -26,6 +27,39 @@ const EditServiceScreen = ({ route, navigation }) => {
   const [originalServerImages] = useState(service.images);
   const [imageViewerVisible, setImageViewerVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  // Track changes to determine if there are unsaved changes
+  useEffect(() => {
+    const nameChanged = name !== service.name;
+    const imagesChanged = JSON.stringify(images) !== JSON.stringify(service.images);
+    setHasUnsavedChanges(nameChanged || imagesChanged);
+  }, [name, images, service.name, service.images]);
+
+  // Handle back navigation with confirmation
+  const handleBackPress = () => {
+    if (hasUnsavedChanges) {
+      Alert.alert(
+        'Unsaved Changes',
+        'You have unsaved changes. If you go back, your updates will be lost. To save updates, click the top right corner icon.',
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+          {
+            text: 'Go Back',
+            style: 'destructive',
+            onPress: () => navigation.goBack(),
+          },
+        ],
+        { cancelable: true }
+      );
+    } else {
+      navigation.goBack();
+    }
+  };
 
   const pickImages = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -51,6 +85,8 @@ const EditServiceScreen = ({ route, navigation }) => {
       Alert.alert('Error', 'Please enter a name and add at least one image.');
       return;
     }
+
+    setIsUpdating(true);
 
     const addImages = images.filter(img => typeof img === 'object' && img.uri);
     const keepImages = images.filter(img => typeof img === 'object' && img.imageUrl);
@@ -80,20 +116,35 @@ const EditServiceScreen = ({ route, navigation }) => {
       };
 
       await updateService(updatePayload);
+      setHasUnsavedChanges(false); // Reset unsaved changes state
       Alert.alert('Success', 'Service updated successfully');
       navigation.goBack();
     } catch (err) {
       console.error('Update failed:', err);
       Alert.alert('Error', 'Failed to update service');
+    } finally {
+      setIsUpdating(false);
     }
   };
 
   return (
     <View style={styles.container}>
+      {/* Full Screen Loader */}
+      {isUpdating && (
+        <View style={styles.loaderOverlay}>
+          <View style={styles.loaderContainer}>
+            <ActivityIndicator size="large" color={color.secondary} />
+            <Text style={styles.loaderText}>Updating Service...</Text>
+          </View>
+        </View>
+      )}
+
       {/* Top Header */}
-      <Header onBackPress={() => navigation.goBack()} title="Service" rightComponent={ <TouchableOpacity onPress={handleUpdate}>
-          <Ionicons name="checkmark-circle" size={28} color={color.secondary} />
-        </TouchableOpacity>}/>
+      <Header onBackPress={handleBackPress} title="Service" rightComponent={ 
+        <TouchableOpacity onPress={handleUpdate} style={{ opacity: hasUnsavedChanges ? 1 : 0.6 }} disabled={isUpdating}>
+          <Ionicons name="checkmark-circle" size={28} color={hasUnsavedChanges ? color.secondary : "#ccc"} />
+        </TouchableOpacity>
+      }/>
       <View style={styles.header}>
         {/* <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={28} color="black" />
@@ -196,6 +247,28 @@ const styles = StyleSheet.create({
     right: -6,
     backgroundColor: '#fff',
     borderRadius: 10,
+  },
+  loaderOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  loaderContainer: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  loaderText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#333',
   },
 });
 

@@ -61,8 +61,8 @@ const Sites = () => {
     if (editingSite) {
       const updatedData = {
         name: siteName,
-        isActive,
-        id: editingSite._id,
+        enabled:isActive,
+        siteId: editingSite._id,
       };
       const res = await updateSites(updatedData);
       if (res.success) {
@@ -105,11 +105,7 @@ const Sites = () => {
   };
 
   const handleSiteClick = (item) => {
-    navigation.navigate('SiteHolidayScreen', {
-      siteId: item._id,
-      name: item.name,
-      isActive: item.isActive,
-    });
+    openEditModal(item);
   };
 
   const renderSite = ({ item }) => (

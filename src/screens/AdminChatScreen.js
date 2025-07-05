@@ -20,7 +20,7 @@ import { getChatHistory, getToken, getUserData, storeChatHistory } from '../comp
 import API, { base_url } from '../api';
 import color from "../styles/globals"
 
-const ChatScreen = ({ route, navigation }) => {
+const AdminChatScreen = ({ route, navigation }) => {
   const { user,role } = route.params;
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
@@ -100,9 +100,11 @@ const ChatScreen = ({ route, navigation }) => {
           console.log('Connected to WebSocket server');
           const currUser = await  getUserData()
           setCurrentUser(currUser);
-          
+          console.log('====================================');
+          console.log(currUser);
+          console.log('====================================');
           // Authenticate the user after connection
-          newSocket.emit('authenticate', currUser._id);
+          newSocket.emit('authenticate', currUser.id);
         });
 
         // Listen for new messages
@@ -412,8 +414,7 @@ const ChatScreen = ({ route, navigation }) => {
         </View>
       );
     }
-    const isSentByCurrentUser = item.sender._id === currentUser?._id;
-
+    const isSentByCurrentUser = item.sender._id === currentUser?.id;
     return (
       <View
         style={[
@@ -625,4 +626,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ChatScreen; 
+export default AdminChatScreen; 

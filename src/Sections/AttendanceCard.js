@@ -1,6 +1,8 @@
 import { useNavigation } from '@react-navigation/native';
 import React from 'react'
-import { View, Text, FlatList, StyleSheet } from "react-native";
+import { View, Text, FlatList, StyleSheet, TouchableOpacity } from "react-native";
+import Icon from 'react-native-vector-icons/FontAwesome';
+import color from '../styles/globals';
 
 const AttendanceCard = ({item}) => {
   const navigation = useNavigation()
@@ -34,6 +36,9 @@ const AttendanceCard = ({item}) => {
           items:item.workImages
         })
     }
+
+    const hasWorkImages = item.workImages && item.workImages.length > 0;
+
   return (
    <View key={item._id} style={styles.card}>
               <View style={styles.dateContainer}>
@@ -49,9 +54,22 @@ const AttendanceCard = ({item}) => {
 
                 <Text style={styles.time}>{item.checkOut&&formatLocalTime(item.checkOut.time)}</Text>
               </View>
-              <View style={styles.details}>
-                <Text onPress={handleImages} style={styles.imageTitle}>{item.workImages&&item.workImages.length>0?"Images":"No \n Images"}</Text>
-              </View>
+              <TouchableOpacity
+                style={styles.imageActionContainer}
+                onPress={handleImages}
+                disabled={!hasWorkImages}>
+                {hasWorkImages ? (
+                  <>
+                    <Icon name="photo" size={30} color={color.secondary} />
+                    <Text style={[styles.imageActionText, {color: color.secondary}]}>View Images</Text>
+                  </>
+                ) : (
+                  <>
+                    <Icon name="camera" size={30} color="#888" />
+                    <Text style={styles.imageActionText}>No Image</Text>
+                  </>
+                )}
+              </TouchableOpacity>
             </View>
   )
 }
@@ -105,9 +123,14 @@ const styles = StyleSheet.create({
       color: "#000",
       // width: '100%',
     },
-   imageTitle:{
-    textAlign:"center",
-      fontSize: 16,
-      fontWeight:"bold"
-   }
+    imageActionContainer: {
+      alignItems: 'center',
+      width: 60,
+    },
+    imageActionText: {
+      marginTop: 5,
+      fontSize: 12,
+      color: '#888',
+      textAlign: 'center',
+    }
   });

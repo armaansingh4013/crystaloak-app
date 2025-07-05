@@ -13,7 +13,7 @@ import {
 import mime from 'mime';
 import color from '../styles/globals';
 import getProfile from '../controller/profile';
-import { getUserData } from '../components/Storage';
+import { getUserData, storeUserData } from '../components/Storage';
 import * as ImagePicker from 'expo-image-picker';
 import uploadPhotos from '../controller/photos';
 import { updateProfile } from '../controller/user/updateProfile';
@@ -29,13 +29,24 @@ const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
 
 const Profile = () => {
-  const [data, setData] = useState(getUserData());
+  const [data, setData] = useState(null); // Start with null
   const [selectedImage, setSelectedImage] = useState(null);
   const [refresh, setRefresh] = useState(false);
   const [profileUpdate, setProfileUpdate] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [imageViewerVisible, setImageViewerVisible] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+
+  const formatEmail = (email) => {
+    if (!email) return '';
+    if (email.length <= 18) return email;
+    
+    const parts = [];
+    for (let i = 0; i < email.length; i += 18) {
+      parts.push(email.slice(i, i + 18));
+    }
+    return parts.join('\n');
+  };
 
   const pickImageFromGallery = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -125,6 +136,12 @@ const Profile = () => {
   };
 
   useEffect(() => {
+    // Fetch from storage first for instant display
+    const fetchFromStorage = async () => {
+      const storedData = await getUserData();
+      if (storedData) setData(storedData);
+    };
+    fetchFromStorage();
     fetchProfile();
   }, [refresh]);
 
@@ -137,6 +154,7 @@ const Profile = () => {
     const res = await getProfile();
     if (res.success) {
       setData(res.data);
+      await storeUserData(res.data); // Update storage with latest profile
     } else {
       Toast.show({
         type: 'error',
@@ -162,7 +180,7 @@ const Profile = () => {
           <View style={styles.profileImageContainer}>
             <TouchableOpacity
               onLongPress={() => {
-                if (data.profileImage) {
+                if (data && data.profileImage) {
                   setSelectedImage(data.profileImage.imageUrl);
                   setImageViewerVisible(true);
                 }
@@ -170,7 +188,7 @@ const Profile = () => {
               delayLongPress={500}
             >
               <Image
-                source={data.profileImage ? {
+                source={data && data.profileImage ? {
                   uri: data.profileImage.imageUrl,
                 } : profile}
                 style={styles.profileImage}
@@ -187,40 +205,40 @@ const Profile = () => {
         </View>
         <View style={styles.card}>
           {/* Name and Designation */}
-          <Text style={styles.name}>{data.name}</Text>
-          <Text style={styles.designation}>{data.designation}</Text>
+          <Text style={styles.name}>{data ? data.name : ''}</Text>
+          <Text style={styles.designation}>{data ? data.designation : ''}</Text>
 
           {/* Info Sections */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Profile Info</Text>
             <View style={styles.infoRow}>
-              <Ionicons name="id-card" size={20} color="#6c47ff" style={styles.infoIcon} />
+              {/* <Ionicons name="id-card" size={20} color="#6c47ff" style={styles.infoIcon} /> */}
               <Text style={styles.info}>
-                <Text style={styles.label}>Employee Code:</Text> {data.employeeCode}
+                <Text style={styles.label}>Employee Code:</Text> {data ? data.employeeCode : ''}
               </Text>
             </View>
             <View style={styles.infoRow}>
-              <Ionicons name="person" size={20} color="#6c47ff" style={styles.infoIcon} />
+              {/* <Ionicons name="person" size={20} color="#6c47ff" style={styles.infoIcon} /> */}
               <Text style={styles.info}>
-                <Text style={styles.label}>Full Name:</Text> {data.name}
+                <Text style={styles.label}>Full Name:</Text> {data ? data.name : ''}
               </Text>
             </View>
             <View style={styles.infoRow}>
-              <Ionicons name="business" size={20} color="#6c47ff" style={styles.infoIcon} />
+              {/* <Ionicons name="business" size={20} color="#6c47ff" style={styles.infoIcon} /> */}
               <Text style={styles.info}>
-                <Text style={styles.label}>Department:</Text> {data.department}
+                <Text style={styles.label}>Department:</Text> {data ? data.department : ''}
               </Text>
             </View>
-            <View style={styles.infoRow}>
+            {/* <View style={styles.infoRow}>
               <Ionicons name="briefcase" size={20} color="#6c47ff" style={styles.infoIcon} />
               <Text style={styles.info}>
-                <Text style={styles.label}>Designation:</Text> {data.designation}
+                <Text style={styles.label}>Designation:</Text> {data ? data.designation : ''}
               </Text>
-            </View>
+            </View> */}
             <View style={styles.infoRow}>
-              <Ionicons name="time" size={20} color="#6c47ff" style={styles.infoIcon} />
+              {/* <Ionicons name="time" size={20} color="#6c47ff" style={styles.infoIcon} /> */}
               <Text style={styles.info}>
-                <Text style={styles.label}>Shift Timings:</Text> {data.shift}
+                <Text style={styles.label}>Shift Timings:</Text> {data ? data.shift : ''}
               </Text>
             </View>
             <TouchableOpacity onPress={() => setProfileUpdate(true)} style={styles.edit}>
@@ -233,13 +251,13 @@ const Profile = () => {
             <View style={styles.infoRow}>
               <Ionicons name="call" size={20} color="#6c47ff" style={styles.infoIcon} />
               <Text style={styles.info}>
-                <Text style={styles.label}>Phone:</Text> {data.phoneNumber}
+                <Text style={styles.label}>Phone:</Text> {data ? data.phoneNumber : ''}
               </Text>
             </View>
             <View style={styles.infoRow}>
               <Ionicons name="mail" size={20} color="#6c47ff" style={styles.infoIcon} />
-              <Text style={styles.info}>
-                <Text style={styles.label}>Email:</Text> {data.email}
+              <Text style={styles.info} numberOfLines={2} ellipsizeMode="tail">
+                <Text style={styles.label}>Email:</Text> {data ? formatEmail(data.email) : ''}
               </Text>
             </View>
           </View>
@@ -282,7 +300,7 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 8,
     alignItems: 'center',
-    height: screenHeight * 0.65,
+    // height: screenHeight * 0.65,
   },
   edit: {
     position: "absolute",

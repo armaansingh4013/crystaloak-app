@@ -12,7 +12,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import Header from '../Sections/Header';
 import { getConversations } from '../controller/admin/chat';
-import { getToken } from '../components/Storage';
+import { getToken, getData, storeData } from '../components/Storage';
 import { getEnabledEmployees } from '../controller/admin/report';
 import color from "../styles/globals"
 
@@ -35,15 +35,31 @@ const ChatListScreen = ({ navigation }) => {
   const [employees, setEmployees] = useState([]);
 
   useEffect(() => {
+    loadFromStorage();
     fetchConversations();
     fetchEnabledEmployees();
   }, []);
+
+  const loadFromStorage = async () => {
+    setLoading(true);
+    try {
+      const storedChats = await getData('chats');
+      const storedEmployees = await getData('employees');
+      if (storedChats) setChats(storedChats);
+      if (storedEmployees) setEmployees(storedEmployees);
+    } catch (err) {
+      console.error('Error loading from storage:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchEnabledEmployees = async () => {
     try {
       const res = await getEnabledEmployees();
       if (res.success) {
         setEmployees(res.data);
+        storeData('employees', res.data);
       }
     } catch (err) {
       console.error('Error fetching employees:', err);
@@ -55,9 +71,8 @@ const ChatListScreen = ({ navigation }) => {
       setLoading(true);
       const token = await getToken();
       const conversations = await getConversations(token);
-      console.log(conversations);
-      
       setChats(conversations);
+      storeData('chats', conversations);
       setError(null);
     } catch (err) {
       setError('Failed to load conversations');
@@ -86,8 +101,10 @@ const ChatListScreen = ({ navigation }) => {
     // Check if conversation already exists
     const existingChat = chats.find(chat => chat.employeeId === employee._id);
   
-      navigation.navigate('Chat', { user:employee,role:"admin" });
-    
+      navigation.navigate('AdminChat', { user:employee,role:"admin" });
+    console.log('====================================');
+    console.log(employee);
+    console.log('====================================');
     setSearchQuery('');
     setSearchResults([]);
   };
@@ -110,7 +127,7 @@ const ChatListScreen = ({ navigation }) => {
   const renderChatItem = ({ item }) => (
     <TouchableOpacity
       style={styles.chatItem}
-      onPress={() => navigation.navigate('Chat',  {user:item.user })}
+      onPress={() => navigation.navigate('AdminChat',  {user:item.user })}
     >
       <View style={styles.avatarContainer}>
         <Text style={styles.avatarText}>{item.user.name.charAt(0)}</Text>

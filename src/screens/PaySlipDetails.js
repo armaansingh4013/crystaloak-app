@@ -173,7 +173,8 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingBottom: 160,
     marginBottom: 60,
     flexGrow: 1,
   },
@@ -209,7 +210,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   generateButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: color.secondary,
     padding: 15,
     borderRadius: 8,
     alignItems: 'center'
