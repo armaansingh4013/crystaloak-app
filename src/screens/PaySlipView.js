@@ -21,6 +21,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import * as Print from 'expo-print';
+import { Asset } from 'expo-asset';
 
 const PaySlipView = ({ route, navigation }) => {
   const { employeeId, payType, employeeData, startDate, endDate, companyAddress } = route.params;
@@ -118,12 +119,20 @@ const PaySlipView = ({ route, navigation }) => {
     try {
       setIsGeneratingPDF(true);
 
-      // Load and convert logo to base64 (like AdminReport)
-      const logoAsset = require('../assets/DarkLogo.png');
-      const { Asset } = await import('expo-asset');
-      const logo = Asset.fromModule(logoAsset);
-      await logo.downloadAsync();
-      const logoBase64 = await FileSystem.readAsStringAsync(logo.localUri, {
+      // Load and convert logo to base64 (using the same robust method as AdminReport)
+      const logoAsset = Asset.fromModule(require('../assets/DarkLogo.png'));
+      await logoAsset.downloadAsync();
+
+      let logoUri = logoAsset.localUri || logoAsset.uri;
+
+      // If the uri is not a file URI, copy it to FileSystem cache
+      if (!logoUri.startsWith('file://')) {
+        const newPath = FileSystem.cacheDirectory + 'DarkLogo.png';
+        await FileSystem.copyAsync({ from: logoUri, to: newPath });
+        logoUri = newPath;
+      }
+
+      const logoBase64 = await FileSystem.readAsStringAsync(logoUri, {
         encoding: FileSystem.EncodingType.Base64,
       });
 
@@ -138,13 +147,10 @@ const PaySlipView = ({ route, navigation }) => {
                 font-family: Arial, sans-serif;
                 margin: 0;
                 padding: 0;
-                width: 842px;
-                min-height: 1191px;
                 background: #fff;
               }
               .paySlipContent {
-                width: 842px;
-                min-height: 1191px;
+                width: 100%;
                 background: #fff;
                 padding: 20px;
                 margin: 0;
@@ -429,25 +435,25 @@ const PaySlipView = ({ route, navigation }) => {
         </html>
       `;
 
-      // Generate PDF
+      // Generate PDF (using same parameters as AdminReport)
       const { uri } = await Print.printToFileAsync({
         html: htmlContent,
-        width: 842, // A4 width in points
-        height: 1191, // A4 height in points
+        base64: false
       });
 
       // Share the PDF
       await Sharing.shareAsync(uri, {
         mimeType: 'application/pdf',
         dialogTitle: 'Share Pay Slip',
-        UTI: 'com.adobe.pdf'
+        UTI: 'public.pdf'
       });
 
-      // Clean up the temporary file
-      await FileSystem.deleteAsync(uri, { idempotent: true });
+      // Don't delete the file immediately - let the system handle cleanup
+      // This prevents issues on some Android devices
+      
     } catch (error) {
       console.error('Error generating PDF:', error);
-      Alert.alert('Error', 'Failed to generate PDF');
+      Alert.alert('Error', `Failed to generate PDF: ${error.message}`);
     } finally {
       setIsGeneratingPDF(false);
     }

@@ -85,3 +85,30 @@ export const getService = async () => {
     return { success: false, message: error.message };
   }
 };
+
+export const deleteService = async (data) => {
+  try {
+    
+    const token = await getToken()
+    const response = await fetch(API.services+"/"+data.id, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': "Bearer "+token
+      }
+    });
+
+    const res = await response.json();
+console.log(res);
+
+    if (!response.ok) {
+      throw new Error(res.message || 'Deleting Service  failed');
+    }
+
+
+    return { success: true, data: res };
+  } catch (error) {
+    console.error('Service deleting error:', error);
+    return { success: false, message: error.message };
+  }
+};

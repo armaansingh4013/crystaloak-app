@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
-import { updateService } from '../controller/website/services';
+import { updateService, deleteService } from '../controller/website/services';
 import uploadPhotos from '../controller/photos';
 import mime from 'mime';
 import { base_url } from '../api';
@@ -29,6 +29,7 @@ const EditServiceScreen = ({ route, navigation }) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Track changes to determine if there are unsaved changes
   useEffect(() => {
@@ -127,23 +128,67 @@ const EditServiceScreen = ({ route, navigation }) => {
     }
   };
 
+  const handleDelete = async () => {
+    Alert.alert(
+      'Delete Service',
+      'Are you sure you want to delete this service? This action cannot be undone.',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            setIsDeleting(true);
+            try {
+              const result = await deleteService({ id: service._id });
+              if (result.success) {
+                Alert.alert('Success', 'Service deleted successfully');
+                navigation.goBack();
+              } else {
+                Alert.alert('Error', result.message || 'Failed to delete service');
+              }
+            } catch (error) {
+              console.error('Delete failed:', error);
+              Alert.alert('Error', 'Failed to delete service');
+            } finally {
+              setIsDeleting(false);
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
   return (
     <View style={styles.container}>
       {/* Full Screen Loader */}
-      {isUpdating && (
+      {(isUpdating || isDeleting) && (
         <View style={styles.loaderOverlay}>
           <View style={styles.loaderContainer}>
             <ActivityIndicator size="large" color={color.secondary} />
-            <Text style={styles.loaderText}>Updating Service...</Text>
+            <Text style={styles.loaderText}>{isDeleting ? 'Deleting Service...' : 'Updating Service...'}</Text>
           </View>
         </View>
       )}
 
       {/* Top Header */}
       <Header onBackPress={handleBackPress} title="Service" rightComponent={ 
-        <TouchableOpacity onPress={handleUpdate} style={{ opacity: hasUnsavedChanges ? 1 : 0.6 }} disabled={isUpdating}>
-          <Ionicons name="checkmark-circle" size={28} color={hasUnsavedChanges ? color.secondary : "#ccc"} />
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <TouchableOpacity 
+            onPress={handleDelete} 
+            style={{ marginRight: 15, opacity: isDeleting ? 0.6 : 1 }} 
+            disabled={isDeleting}
+          >
+            <Ionicons name="trash" size={24} color="red" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleUpdate} style={{ opacity: hasUnsavedChanges ? 1 : 0.6 }} disabled={isUpdating}>
+            <Ionicons name="checkmark-circle" size={28} color={hasUnsavedChanges ? color.secondary : "#ccc"} />
+          </TouchableOpacity>
+        </View>
       }/>
       <View style={styles.header}>
         {/* <TouchableOpacity onPress={() => navigation.goBack()}>

@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View, Dimensions } from 'react-native';
 import { AuthContext } from '../components/AuthContext';
 import { Ionicons, MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import color from "../styles/globals"
@@ -8,6 +8,7 @@ import getProfile from '../controller/profile';
 import { base_url } from '../api';
 import { useNavigation } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
+const screenHeight = Dimensions.get('window').height;
 
 const Setting = () => {
   const { logout } = useContext(AuthContext);
@@ -142,7 +143,7 @@ const styles = StyleSheet.create({
   cardContainer: {
     flex: 1,
     backgroundColor: '#fff',
-    marginTop: -65,
+    marginTop: -(screenHeight * 0.05),
     margin:20,
     borderRadius: 25,
     paddingTop: 30,

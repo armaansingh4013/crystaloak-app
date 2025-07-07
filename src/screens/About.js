@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 16,
-    textAlign: 'center',
+    textAlign: 'justify',
     color: '#555555',
     marginBottom: 20,
     lineHeight: 22,
@@ -96,5 +96,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666666',
     lineHeight: 22,
+    textAlign: 'justify',
   },
 });

@@ -255,7 +255,7 @@ const ChatScreen = ({ route, navigation }) => {
         _id: Date.now().toString(),
         content: newMessage.trim(),
         sender: {
-          _id: currentUser.id,
+          _id: currentUser._id,
           name: currentUser.name
         },
         receiver: {
@@ -276,10 +276,6 @@ const ChatScreen = ({ route, navigation }) => {
           content: newMessage.trim()
         });
       }
-      fetchChatHistory()
-      console.log('====================================');
-      console.log("success");
-      console.log('====================================');
       setTimeout(scrollToBottom, 100);
     } catch (error) {
       Alert.alert('Error', 'Failed to send message. Please try again.');
